@@ -1,0 +1,63 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{longtable,geometry}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[babel]{csquotes}
+\usepackage{multicol}
+\usepackage{eurosym}
+\MakeAutoQuote{«}{»}
+\pagestyle{headings}
+\geometry{dvips,a4paper,margin=1.5in}
+
+\usepackage[usenames]{color}
+\usepackage{amssymb,amsmath} 
+\usepackage{listings}
+\usepackage{verbatim}
+\usepackage{moreverb}
+\usepackage{txfonts}
+\addtolength{\hoffset}{-1.5cm}
+\addtolength{\voffset}{-1.5cm}
+\addtolength{\textwidth}{3cm}
+\addtolength{\textheight}{3cm}
+\title{Poker Hand}
+\author{by ToF}
+\input{LittleHaskeller.tex}
+
+\begin{document}
+\lstset{ 
+        language=Haskell,
+	basicstyle=\color{black}\sffamily,
+	columns=fullflexible,
+	tabsize=4,
+	tab=$\to$,
+	literate={->}{$\to$ }2 {>=}{$\geq$}1 {==>}{$\Longrightarrow$}1 {lll}{$\lambda$}1 {__}{\space}1,
+	numberstyle=\tiny,
+	float=tbph,
+	extendedchars,
+	breaklines,
+	frame=none,
+	showtabs=false,
+	showspaces=false,
+	showstringspaces=false,
+	keywordstyle=\color{blue},
+	identifierstyle=\color{black}\textsl,
+	morekeywords={subsequences, comparing, Card},
+	stringstyle=\color{darkgreen},
+	commentstyle=\color{red},
+	captionpos=b,
+	aboveskip=\bigskipamount,
+	belowskip=\bigskipamount}
+
+\setlength{\columnsep}{1cm}	
+
+\parindent = 0cm
+\maketitle
+\troislambdas
+
+\vspace{9cm}
+\input{Chapter1}
+
+\end{document}
+
+
