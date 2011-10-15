@@ -22,35 +22,10 @@
 \addtolength{\textheight}{3cm}
 \title{Trial Run}
 \author{by ToF}
-\newcommand{\troislambdas}{\begin{center}
-    $\lambda\hspace{.25cm}\lambda\hspace{.25cm}\lambda$ \\
-\color{black}\end{center}}
-\definecolor{lightgray}{rgb}{.95,.95,.95}
-\definecolor{darkgreen}{rgb}{0, .50, 0}
-\definecolor{verylightgreen}{cmyk}{.010,0,.010,0}
-\definecolor{verylightyellow}{cmyk}{0,0,.05,0}
-\definecolor{orange}{rgb}{.91,.54,.17}
-
-\newcommand{\success}{\textcolor{green}{$\blacksquare$} }
-\newcommand{\failure}{\textcolor{red}{$\blacksquare$} }
-\newcommand{\error}{\textcolor{orange}{$\blacksquare$} }
-\newcommand{\hearts}[1]{\textcolor{red}{{#1}$\varheartsuit$}}
-\newcommand{\clubs}[1]{\textcolor{black}{{#1}$\clubsuit$}}
-\newcommand{\diamonds}[1]{\textcolor{red}{{#1}$\vardiamondsuit$}}
-\newcommand{\spades}[1]{\textcolor{black}{{#1}$\spadesuit$}}
-
-%% little haskeller commands
-\newcommand{\il}{\lstinline}
-\newcommand{\lhright}{\begin{multicols}{2}}
-\newcommand{\lhleft}{\columnbreak\newline}
-\newcommand{\lhend}{\end{multicols}}
-\newcommand{\lhnext}{\lhend\hrule\lhright}
-\newenvironment{qr}[1]{%
-\begin{multicols}{2}{#1}\columnbreak\\}
-{\end{multicols}\hrule}
+\input{LittleHaskeller.tex}
 
 \begin{document}
-\lstset{
+\lstset{ 
         language=Haskell,
 	basicstyle=\color{black}\sffamily,
 	columns=fullflexible,
@@ -72,8 +47,8 @@
 	commentstyle=\color{red},
 	captionpos=b,
 	aboveskip=\bigskipamount,
-	belowskip=\bigskipamount
-}
+	belowskip=\bigskipamount}
+
 \setlength{\columnsep}{1cm}	
 
 \parindent = 0cm
@@ -82,24 +57,24 @@
 
 \vspace{9cm}
 \hrule
-\lhright Are you there ?
-\lhleft Yes.
-\lhnext Do you see rules between questions ?
-\lhleft Yes.
-\lhnext Can we write snippets of \il!Haskell -> Code! ?
-\lhleft Seems so.
-\lhnext Can we write bigger blocks like this one:
+\lhQ Are you there ?
+\lhA Yes.
+\lhN Do you see rules between questions ?
+\lhA Yes.
+\lhN Can we write snippets of \il!Haskell -> Code! ?
+\lhA Seems so.
+\lhN Can we write bigger blocks like this one:
 \begin{lstlisting}[frame=single]
 module Main where
 putStrLn "Hello, World!"
 \end{lstlisting}
 \hspace*{\fill} 
-\lhleft Yes indeed.
-\lhnext Do we have the test status coloured bullets ?
-\lhleft Let me check: \error checked \failure checked \success checked \\
+\lhA Yes indeed.
+\lhN Do we have the test status coloured bullets ?
+\lhA Let me check: \error checked \failure checked \success checked \\
 Yes we have.
-\lhnext Good! Then can we go on ?
-\lhleft Let's go!
+\lhN Good! Then can we go on ?
+\lhA Let's go!
 \lhend
 %**************************************************************************************************
 \end{document}

@@ -5,29 +5,29 @@
 \vspace{10cm}
 \hrule
 
-\lhright What is this : \il!"8h"! ?
-\lhleft A \il!String!.
-\lhnext Yes. What does it represent ?
-\lhleft A height of hearts, or \hearts8.
-\lhnext What \il!"7c 6d 9s"! represent ?
-\lhleft Some others cards: \clubs7, \diamonds6, and \spades9.
-\lhnext Right. And what does \il!"Ah Kh Qh Jh Th"! represent ?
-\lhleft It represents victory: it's a royal flush.
-\lhnext What is the best we can do with the following: \\
+\lhQ What is this : \il!"8h"! ?
+\lhA A \il!String!.
+\lhN Yes. What does it represent ?
+\lhA A height of hearts, or \hearts8.
+\lhN What \il!"7c 6d 9s"! represent ?
+\lhA Some others cards: \clubs7, \diamonds6, and \spades9.
+\lhN Right. And what does \il!"Ah Kh Qh Jh Th"! represent ?
+\lhA It represents victory: it's a royal flush.
+\lhN What is the best we can do with the following: \\
  \diamonds4 \diamonds2 \spades K \diamonds K \diamonds9 \clubs3 \diamonds6 ?
-\lhleft A flush.
-\lhnext And with \clubs9 \hearts A \spades K \diamonds K \diamonds9 \clubs3 \diamonds6 ?
-\lhleft Two pairs.
-\lhnext Correct. And with \clubs A \clubs Q \spades K \diamonds K \diamonds9 \clubs3 ?
-\lhleft Nothing, because there are less than seven cards.
-\lhnext And with \hearts9 \spades5 ?
-\lhleft Nothing, for the same reason.
-\lhnext That's right. \\
+\lhA A flush.
+\lhN And with \clubs9 \hearts A \spades K \diamonds K \diamonds9 \clubs3 \diamonds6 ?
+\lhA Two pairs.
+\lhN Correct. And with \clubs A \clubs Q \spades K \diamonds K \diamonds9 \clubs3 ?
+\lhA Nothing, because there are less than seven cards.
+\lhN And with \hearts9 \spades5 ?
+\lhA Nothing, for the same reason.
+\lhN That's right. \\
 What about \clubs K \spades9 \spades K \diamonds K \diamonds9  \clubs3 \diamonds6 ?
-\lhleft It's a full house. Say, why are you showing me all these cards ?
-\lhnext Because we have a problem, and I wanted to be sure you know the basics about \emph{Poker}.
-\lhleft Show me what the problem is.
-\lhnext We have to write a program wich, given this input:
+\lhA It's a full house. Say, why are you showing me all these cards ?
+\lhN Because we have a problem, and I wanted to be sure you know the basics about \emph{Poker}.
+\lhA Show me what the problem is.
+\lhN We have to write a program wich, given this input:
 \begin{verbatim}
 Kc 9s Ks Kd 9d 3c 6d
 9c Ah Ks Kd 9d 3c 6d
@@ -37,8 +37,8 @@ Ac Qc Ks Kd 9d 3c
 7s Ts Ks Kd 9d
 \end{verbatim}
 \hspace*{\fill} 
-\lhleft These are the cards of some players in a game of \emph{Texas Hold'em}. Right ?
-\lhnext -- right -- ..would output this:
+\lhA These are the cards of some players in a game of \emph{Texas Hold'em}. Right ?
+\lhN -- right -- ..would output this:
 \begin{verbatim}
 Kc 9s Ks Kd 9d 3c 6d Full House (winner)
 9c Ah Ks Kd 9d 3c 6d Two Pair
@@ -48,31 +48,31 @@ Ac Qc Ks Kd 9d 3c
 7s Ts Ks Kd 9d 
 \end{verbatim}
 \hspace*{\fill} 
-\lhleft I see. 
-\lhnext What do you see ?
-\lhleft Some lines are just left as they are. \\
+\lhA I see. 
+\lhN What do you see ?
+\lhA Some lines are just left as they are. \\
 Some lines are marked with the ranking of the best possible hand given the cards on the line.\\
 The line with the best ranking is marked as the winner.
-\lhnext Do you think we can solve the problem ?
-\lhleft Yes, provided we have the good tools.
-\lhnext What is the value of:  \il!filter even [4,8,0,7]! ?
-\lhleft \il![4,8,0]!
-\lhnext What is the value of:  \il!subsequences "abc"! ?
-\lhleft \il!["","a","b","ab","c","ac","bc","abc"]!
-\lhnext And of the expression: \il!maximum [4,8,0,7]! ? 
-\lhleft \il!8!
-\lhnext What about: \il!zip [3,5,2] "abc"! ?
-\lhleft \il![(3,'a'),(5,'b'),(2,'c')]!
-\lhnext and  the expression: \il!zipWith (*)__ [3,5,2] [4,9,7]! ?
-\lhleft \il![12, 45, 14]!
-\lhnext What is the value of: \\ \il!words "time flies like an arrow"! ?
-\lhleft \il!["time","flies","like","an","arrow"]!
-\lhnext What is the value of: \il!compare "time"__"arrow"! ?
-\lhleft \il!GT!, because \il!"time" > "arrow"!
-\lhnext What is the value of:\\ \il!comparing length "time"__"arrow"! ?
-\lhleft \il!LT!, because \il!(length "time")__< (length "arrow)"!
-\lhnext Do you want to solve the problem ? 
-\lhleft Let's make some tea first.
+\lhN Do you think we can solve the problem ?
+\lhA Yes, provided we have the good tools.
+\lhN What is the value of:  \il!filter even [4,8,0,7]! ?
+\lhA \il![4,8,0]!
+\lhN What is the value of:  \il!subsequences "abc"! ?
+\lhA \il!["","a","b","ab","c","ac","bc","abc"]!
+\lhN And of the expression: \il!maximum [4,8,0,7]! ? 
+\lhA \il!8!
+\lhN What about: \il!zip [3,5,2] "abc"! ?
+\lhA \il![(3,'a'),(5,'b'),(2,'c')]!
+\lhN and  the expression: \il!zipWith (*)__ [3,5,2] [4,9,7]! ?
+\lhA \il![12, 45, 14]!
+\lhN What is the value of: \\ \il!words "time flies like an arrow"! ?
+\lhA \il!["time","flies","like","an","arrow"]!
+\lhN What is the value of: \il!compare "time"__"arrow"! ?
+\lhA \il!GT!, because \il!"time" > "arrow"!
+\lhN What is the value of:\\ \il!comparing length "time"__"arrow"! ?
+\lhA \il!LT!, because \il!(length "time")__< (length "arrow)"!
+\lhN Do you want to solve the problem ? 
+\lhA Let's make some tea first.
 \lhend
 
 

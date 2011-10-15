@@ -1,0 +1,18 @@
+\newpage
+%----------------------------------------------------------------------------------------------------
+\section{Dealing with Cards} % 11111111111111111111111111111111111111111111111111111111111111111111
+%----------------------------------------------------------------------------------------------------
+\vspace{10cm}
+\hrule
+
+\lhQ What is something simple we could begin to solve ?
+\lhA Comparing cards.
+\lhN How do we proceed ?
+\lhA Write a failing test.
+\lhN Ok. Let compare a \spades 6 and a \hearts 6. These two cards should be considered equals in value.
+\begin{lstlisting}[frame=single]
+runTestTT $ compare "6s" "6h" ~?= EQ
+\end{lstlisting} % $
+What is the result ?
+\lhA Ok
+\lhend
