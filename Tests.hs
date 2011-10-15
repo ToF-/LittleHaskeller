@@ -5,8 +5,8 @@ import PokerHand
 import Data.Ord (comparing)
 import Data.List (sortBy)
 
-deck = words "2h 9h Th Jh Qh Kh Ah"
+d = words "2h 9h Th Jh Qh Kh Ah"
 main = runTestTT $ TestList 
-       [sortBy (comparing card) deck  ~?= deck]
+       [sortBy (comparing card) d  ~?= d]
 
 
