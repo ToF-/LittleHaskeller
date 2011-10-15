@@ -5,9 +5,9 @@
 \vspace{10cm}
 \hrule
 
-\lhQ What is something simple we could begin to solve ?
+\lhQ What is something simple we could begin to solve?
 \lhA Comparing cards.
-\lhN How do we proceed ?
+\lhN How do we proceed?
 \lhA Write a failing test.
 \lhN Ok. Let compare a \spades 6 and a \hearts 6. These two cards should be considered equals in value.
 \begin{lstlisting}[frame=single]
@@ -18,23 +18,23 @@ import Test.HUnit
 main = runTestTT $ TestList 
        [compare "6h" "6s" ~?= EQ]
 \end{lstlisting} % $
-What is the result ?
+What is the result?
 \lhA \failure Failure: 
 \begin{verbatim}
 expected: EQ
  but got: LT
 \end{verbatim}
 We're comparing \il!String!s when we should compare \il!Card!s.
-\lhN What is a \il!Card! ?
+\lhN What is a \il!Card!?
 \lhA It's a new data type.
-\lhN How do I create values of this type ?
+\lhN How do I create values of this type?
 \lhA Pretend you have a function from \il!String! to \il!Card!.
 \lhN Ok. I'll just call that function \il!card! :
 \begin{lstlisting}[frame=single]
 main = runTestTT $ TestList 
        [compare (card "6h") (card "6s") ~?= EQ] 
 \end{lstlisting} % $
-What now ?
+What now?
 \lhA \error Error, as expected. Let me just write the function.
 \begin{lstlisting}[frame=single]
 module PokerHand
@@ -50,7 +50,7 @@ accompanying binding
 Not in scope: type constructor or class 
 `Card'
 \end{verbatim}
-What do we have to do ?
+What do we have to do?
 \lhA \error Create the \il!Card! type:
 \begin{lstlisting}[frame=single]
 data Card = C 
@@ -63,7 +63,7 @@ Creating a single value, \il!C! is the simplest possible value we can write.
 The type signature for `card' lacks an 
 accompanying binding
 \end{verbatim}
-Can you implement the function ?
+Can you implement the function?
 \lhA \error Here it is:
 \begin{lstlisting}[frame=single]
 data Card = C 
@@ -79,7 +79,7 @@ from a use of `compare'
 Possible fix: add an instance 
 declaration for (Ord Card)
 \end{verbatim}
-Can you fix this ?
+Can you fix this?
 \lhA \error Sure. Let's do what GHC suggests
 \begin{lstlisting}[frame=single]
 data Card = C deriving (Ord)
@@ -94,7 +94,7 @@ from a use of `compare'
 Possible fix: add an instance 
 declaration for (Eq Card)
 \end{verbatim}
-Can you fix it too ?
+Can you fix it too?
 \lhA \error Again, let's do what GHC suggests 
 \begin{lstlisting}[frame=single]
 data Card = C deriving (Ord,Eq)
@@ -116,7 +116,7 @@ main = runTestTT $ TestList
        [compare (card "6h") (card "6s") ~?= EQ
        ,compare (card "6h") (card "5s") ~?= GT]
 \end{lstlisting} % $
-How do we make it pass ?
+How do we make it pass?
 \lhA \error What we should compare is the rank value of the card so let's store that value in the \il!Card! type:
 \begin{lstlisting}[frame=single]
 data Card = C Value deriving (Ord,Eq)
@@ -148,13 +148,13 @@ card :: String -> Card
 card [c,_] = C $ (ord c) - (ord '0')
 \end{lstlisting} % $
 \success Done.
-\lhN Done ? I think I have a new test to write. But first I'll do some refactoring, too.
+\lhN Done? I think I have a new test to write. But first I'll do some refactoring, too.
 \begin{lstlisting}[frame=single]
 main = runTestTT $ TestList 
        [compare (card "6h") (card "6s") ~?= EQ
        ,compare (card "6h") (card "5s") ~?= GT]
 \end{lstlisting} % $
-You know about \il!comparing! right ?
+You know about \il!comparing! right?
 \lhA Yes, and so does $GHCI$: \\
 
 \il!comparing :: (Ord a) => (b -> a) -> b -> b -> Ordering! \\
@@ -174,7 +174,7 @@ main = runTestTT $ TestList
        [comparing card "6h" "6s" ~?= EQ
        ,comparing card "6h" "5s" ~?= GT]
 \end{lstlisting} % $
-\success What do you think ?
+\success What do you think?
 \lhA \success Nice!
 \lhN Now for my new test:
 \begin{lstlisting}[frame=single]
@@ -221,7 +221,7 @@ main = runTestTT $ TestList
        ,comparing card "Kh" "Ah" ~?= LT
        ,comparing card "Qh" "Kh" ~?= LT]
 \end{lstlisting} % $
-Can you add it ?
+Can you add it?
 \lhA \failure Sure:
 \begin{lstlisting}[frame=single]
 card :: String -> Card
@@ -233,7 +233,7 @@ card ['T',_] = C 10
 card [c,_] = C $ (ord c) - (ord '0')
 \end{lstlisting} % $
 \success And we are done with card values.
-\lhN We are, but I find the tests are a bit heavy. Can you think of a way to avoid repeating all these comparisons ?
+\lhN We are, but I find the tests are a bit heavy. Can you think of a way to avoid repeating all these comparisons?
 \lhA Yes: we could test the sorting of a deck of card against an expected deck.
 \lhN 
 \begin{lstlisting}[frame=single]
@@ -247,7 +247,7 @@ deck = map card ["2h","9h","Th","Jh","Qh","Kh","Ah"]
 main = runTestTT $ TestList 
        [sort deck  ~?= deck]
 \end{lstlisting} % $
-Is that what you mean ?
+Is that what you mean?
 \lhA \error Yes, but we have a new problem.
 \lhN \error Indeed:
 \begin{verbatim}
@@ -256,10 +256,10 @@ from a use of `~?='
 Possible fix: add an instance 
 declaration for (Show Card)
 \end{verbatim}
-Should we follow the suggestion ?
+Should we follow the suggestion?
 \lhA \error No. I don't think the \il!Card! type should derive the \il!Show! class just for testing reasons.
-\lhN Then should we get back to the previous version of our tests ?
-\lhA I have a better idea: instead of comparing lists of \il!Cards!, we can compare lists of \il!String!s.
+\lhN Then should we get back to the previous version of our tests?
+\lhA I have a better idea: instead of comparing lists of \il!Card!s we can compare lists of \il!String!s.
 \lhN \error You mean like this: 
 \begin{lstlisting}[frame=single]
 deck = ["2h","9h","Th","Jh","Qh","Kh","Ah"]
@@ -271,7 +271,7 @@ main = runTestTT $ TestList
 expected: ["2h","9h","Th","Jh","Qh","Kh","Ah"]
  but got: ["2h","9h","Ah","Jh","Kh","Qh","Th"]
 \end{verbatim}
-Do you see why ?
+Do you see why?
 \lhA \failure Of course: we don't use the \il!Card! and the \il!card! function type any more!
 \lhN You are right. Let's use it in the comparison:
 \begin{lstlisting}[frame=single]
@@ -290,7 +290,7 @@ deck = ["9h","2h","Th","Jh","Qh","Kh","Ah"]
 main = runTestTT $ TestList 
        [sortBy (comparing card) deck  ~?= deck]
 \end{lstlisting} % $
-\failure Don't change the code: what's the message ?
+\failure Don't change the code: what's the message?
 \lhA \failure Here it is:
 \begin{verbatim}
 expected: ["9h","2h","Th","Jh","Qh","Kh","Ah"]
@@ -310,6 +310,6 @@ deck = words "2h 9h Th Jh Qh Kh Ah"
 main = runTestTT $ TestList 
        [sortBy (comparing card) deck  ~?= deck]
 \end{lstlisting} % $
-\success Are we done with comparing card values ?
+\success Are we done with comparing card values?
 \lhA Not yet.
 \lhend
