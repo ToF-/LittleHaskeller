@@ -11,8 +11,96 @@
 \lhA Write a failing test.
 \lhN Ok. Let compare a \spades 6 and a \hearts 6. These two cards should be considered equals in value.
 \begin{lstlisting}[frame=single]
-runTestTT $ compare "6s" "6h" ~?= EQ
+module Tests
+where 
+import Test.HUnit
+
+main = runTestTT $ TestList 
+       [compare "6h" "6s" ~?= EQ]
 \end{lstlisting} % $
 What is the result ?
-\lhA Ok
+\lhA \failure Failure: 
+\begin{verbatim}
+expected: EQ
+ but got: LT
+\end{verbatim}
+We're comparing \il!String!s when we should compare \il!Card!s.
+\lhN What is a \il!Card! ?
+\lhA It's a new data type.
+\lhN How do I create values of this type ?
+\lhA Pretend you have a function from \il!String! to \il!Card!.
+\lhN Ok. I'll just call that function \il!card! :
+\begin{lstlisting}[frame=single]
+main = runTestTT $ TestList 
+       [compare (card "6h") (card "6s") ~?= EQ] 
+\end{lstlisting} % $
+What now ?
+\lhA \error Error, as expected. Let me just write the function.
+\begin{lstlisting}[frame=single]
+module PokerHand
+where
+
+card :: String -> Card
+\end{lstlisting}
+\lhN \error This results in two errors: 
+\begin{verbatim}
+The type signature for `card' lacks an 
+accompanying binding
+
+Not in scope: type constructor or class 
+`Card'
+\end{verbatim}
+What do we have to do ?
+\lhA \error Create the \il!Card! type:
+\begin{lstlisting}[frame=single]
+data Card = C 
+
+card :: String -> Card
+\end{lstlisting}
+Creating a single value, \il!C! is the simplest possible thing we can write.
+\lhN \error We still have one error: 
+\begin{verbatim}
+The type signature for `card' lacks an 
+accompanying binding
+\end{verbatim}
+Can you implement the function ?
+\lhA \error Here it is:
+\begin{lstlisting}[frame=single]
+data Card = C 
+
+card :: String -> Card
+card _ = C
+\end{lstlisting}
+Here the function is just producing the single value.
+\lhN \error Woah! Here's a new one:
+\begin{verbatim}
+No instance for (Ord Card) arising 
+from a use of `compare' 
+Possible fix: add an instance 
+declaration for (Ord Card)
+\end{verbatim}
+Can you fix this ?
+\lhA \error Sure. Let's do what GHC suggests
+\begin{lstlisting}[frame=single]
+data Card = C deriving (Ord)
+
+card :: String -> Card
+card _ = C
+\end{lstlisting}
+\lhN \error Now we have this:
+\begin{verbatim}
+No instance for (Eq Card) arising 
+from a use of `compare' 
+Possible fix: add an instance 
+declaration for (Eq Card)
+\end{verbatim}
+Can you fix it too ?
+\lhA \error Again, let's do what GHC suggests 
+\begin{lstlisting}[frame=single]
+data Card = C deriving (Ord,Eq)
+
+card :: String -> Card
+card _ = C
+\end{lstlisting}
+\success Done!
 \lhend
