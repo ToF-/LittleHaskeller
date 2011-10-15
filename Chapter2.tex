@@ -173,9 +173,143 @@ import Data.Ord (comparing)
 main = runTestTT $ TestList 
        [comparing card "6h" "6s" ~?= EQ
        ,comparing card "6h" "5s" ~?= GT]
-\end{lstlisting} 
+\end{lstlisting} % $
 \success What do you think ?
 \lhA \success Nice!
+\lhN Now for my new test:
+\begin{lstlisting}[frame=single]
+main = runTestTT $ TestList 
+       [comparing card "6h" "6s" ~?= EQ
+       ,comparing card "6h" "5s" ~?= GT
+       ,comparing card "Th" "Js" ~?= LT]
+\end{lstlisting} % $
+\failure We're expecting \il!LT! but get \il!GT!. Can you make it pass?
+\lhA
+\failure I think so, by adding special cases:
+\begin{lstlisting}[frame=single]
+card :: String -> Card
+card ['J',_] = C 11
+card ['T',_] = C 10
+card [c,_] = C $ (ord c) - (ord '0')
+\end{lstlisting} % $
+\success Done.
+\lhN Good. Here's a new one.
+\begin{lstlisting}[frame=single]
+main = runTestTT $ TestList 
+       [comparing card "6h" "6s" ~?= EQ
+       ,comparing card "6h" "5s" ~?= GT
+       ,comparing card "Th" "Js" ~?= LT
+       ,comparing card "Kh" "Ah" ~?= LT]
+\end{lstlisting} % $
+\failure Go on.
+\lhA \failure Ok. That's easy: give each card its value:
+\begin{lstlisting}[frame=single]
+card :: String -> Card
+card ['A',_] = C 14
+card ['K',_] = C 13
+card ['J',_] = C 11
+card ['T',_] = C 10
+card [c,_] = C $ (ord c) - (ord '0')
+\end{lstlisting} % $
+\success Done.
+\lhN We forgot the Queen value:
+\begin{lstlisting}[frame=single]
+main = runTestTT $ TestList 
+       [comparing card "6h" "6s" ~?= EQ
+       ,comparing card "6h" "5s" ~?= GT
+       ,comparing card "Th" "Js" ~?= LT
+       ,comparing card "Kh" "Ah" ~?= LT
+       ,comparing card "Qh" "Kh" ~?= LT]
+\end{lstlisting} % $
+Can you add it ?
+\lhA \failure Sure:
+\begin{lstlisting}[frame=single]
+card :: String -> Card
+card ['A',_] = C 14
+card ['K',_] = C 13
+card ['Q',_] = C 12
+card ['J',_] = C 11
+card ['T',_] = C 10
+card [c,_] = C $ (ord c) - (ord '0')
+\end{lstlisting} % $
+\success And we are done with card values.
+\lhN We are, but I find the tests are a bit heavy. Can you think of a way to avoid repeating all these comparisons ?
+\lhA Yes: we could test the sorting of a deck of card against an expected deck.
+\lhN 
+\begin{lstlisting}[frame=single]
+module Tests
+where 
+import Test.HUnit
+import PokerHand
+import Data.List (sort)
 
+deck = map card ["2h","9h","Th","Jh","Qh","Kh","Ah"]
+main = runTestTT $ TestList 
+       [sort deck  ~?= deck]
+\end{lstlisting} % $
+Is that what you mean ?
+\lhA \error Yes, but we have a new problem.
+\lhN \error Indeed:
+\begin{verbatim}
+No instance for (Show Card) arising
+from a use of `~?='
+Possible fix: add an instance 
+declaration for (Show Card)
+\end{verbatim}
+Should we follow the suggestion ?
+\lhA \error No. I don't think the \il!Card! type should derive the \il!Show! class just for testing reasons.
+\lhN Then should we get back to the previous version of our tests ?
+\lhA I have a better idea: instead of comparing lists of \il!Cards!, we can compare lists of \il!String!s.
+\lhN \error You mean like this: 
+\begin{lstlisting}[frame=single]
+deck = ["2h","9h","Th","Jh","Qh","Kh","Ah"]
+main = runTestTT $ TestList 
+       [sort deck  ~?= deck]
+\end{lstlisting} % $
+\failure But now the test fail:
+\begin{verbatim}
+expected: ["2h","9h","Th","Jh","Qh","Kh","Ah"]
+ but got: ["2h","9h","Ah","Jh","Kh","Qh","Th"]
+\end{verbatim}
+Do you see why ?
+\lhA \failure Of course: we don't use the \il!Card! and the \il!card! function type any more!
+\lhN You are right. Let's use it in the comparison:
+\begin{lstlisting}[frame=single]
+import Data.Ord (comparing)
+import Data.List (sortBy)
 
+deck = ["2h","9h","Th","Jh","Qh","Kh","Ah"]
+main = runTestTT $ TestList 
+       [sortBy (comparing card) deck  ~?= deck]
+\end{lstlisting} % $
+\success Now it works!
+\lhA Yes!
+\lhN I wonder what would the test show if it failed. Let's falsify the test:
+\begin{lstlisting}[frame=single]
+deck = ["9h","2h","Th","Jh","Qh","Kh","Ah"]
+main = runTestTT $ TestList 
+       [sortBy (comparing card) deck  ~?= deck]
+\end{lstlisting} % $
+\failure Don't change the code: what's the message ?
+\lhA \failure Here it is:
+\begin{verbatim}
+expected: ["9h","2h","Th","Jh","Qh","Kh","Ah"]
+ but got: ["2h","9h","Th","Jh","Qh","Kh","Ah"]
+\end{verbatim}
+The test properly outputs the results as a list of \il!String!s. We can get back to the correct version. Oh, and use \il!words!.
+\lhN You are right.
+\begin{lstlisting}[frame=single]
+module Tests
+where 
+import Test.HUnit
+import PokerHand
+import Data.Ord (comparing)
+import Data.List (sortBy)
+
+deck = words "2h 9h Th Jh Qh Kh Ah"
+main = runTestTT $ TestList 
+       [sortBy (comparing card) deck  ~?= deck]
+\end{lstlisting} % $
+\success Are we done with comparing card values ?
+\lhA Not yet.
 \lhend
