@@ -57,7 +57,7 @@ data Card = C
 
 card :: String -> Card
 \end{lstlisting}
-Creating a single value, \il!C! is the simplest possible thing we can write.
+Creating a single value, \il!C! is the simplest possible value we can write.
 \lhN \error We still have one error: 
 \begin{verbatim}
 The type signature for `card' lacks an 
@@ -103,4 +103,49 @@ card :: String -> Card
 card _ = C
 \end{lstlisting}
 \success Done!
+\lhN Of course, this is just a \emph{fake}..
+\lhA Then write another test.
+\lhN Here you go:
+\begin{lstlisting}[frame=single]
+module Tests
+where 
+import Test.HUnit
+import PokerHand
+
+main = runTestTT $ TestList 
+       [compare (card "6h") (card "6s") ~?= EQ
+       ,compare (card "6h") (card "5s") ~?= GT]
+\end{lstlisting} % $
+How do we make it pass ?
+\lhA \error What we should compare is the rank value of the card so let's store that value in the \il!Card! type:
+\begin{lstlisting}[frame=single]
+data Card = C Value deriving (Ord,Eq)
+type Value = Int
+
+card :: String -> Card
+card _ = C 0
+\end{lstlisting}
+\failure Of course, the test now fails, as we must calculate the real value, not zero.. Let's think about it.
+\lhN \failure Just make the test pass. I don't like to have to think on a red bar.
+\lhA \failure Let's play ``\emph{fake it 'til you make it}'' then:
+\begin{lstlisting}[frame=single]
+card :: String -> Card
+card ['6',_] = C 6
+card ['5',_] = C 5 
+\end{lstlisting}
+\success Now it's obvious.
+\lhN \success We just have to convert from \il!Char! to \il!Int!, using the \il!ord! function. Refactor it!
+\lhA \success Ok!
+\begin{lstlisting}[frame=single]
+module PokerHand
+where
+import Char
+
+data Card = C Value deriving (Ord,Eq)
+type Value = Int
+
+card :: String -> Card
+card [c,_] = C $ (ord c) - (ord 'O')
+\end{lstlisting} % $
+\success Done.
 \lhend

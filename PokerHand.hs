@@ -1,7 +1,9 @@
 module PokerHand
 where
+import Char
 
-data Card = C deriving (Ord,Eq)
+data Card = C Value deriving (Ord,Eq)
+type Value = Int
 
 card :: String -> Card
-card _ = C
+card [c,_] = C $ (ord c) - (ord 'O')
