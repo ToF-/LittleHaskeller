@@ -153,8 +153,16 @@ card [c,_] = C $ (ord c) - (ord '0')
 main = runTestTT $ TestList 
        [compare (card "6h") (card "6s") ~?= EQ
        ,compare (card "6h") (card "5s") ~?= GT]
-\end{lstlisting}
-You remember about \il!comparing! right ?
+\end{lstlisting} % $
+You know about \il!comparing! right ?
+\lhA Yes, and so does $GHCI$: \\
+
+\il!comparing :: (Ord a) => (b -> a) -> b -> b -> Ordering! \\
+\il! -- Defined in Data.Ord! \\
+
+
+\il!comparing! takes a function from a type \il!b! to an ordered type \il!a!, two values of type \il!b! and gives the comparison using the given function.
+\lhN Yes, so I can compare \il!String!s using the \il!card! function:
 \begin{lstlisting}[frame=single]
 module Tests
 where 
