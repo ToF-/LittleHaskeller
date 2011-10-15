@@ -2,7 +2,8 @@ module Tests
 where 
 import Test.HUnit
 import PokerHand
+import Data.Ord (comparing)
 
 main = runTestTT $ TestList 
-       [compare (card "6h") (card "6s") ~?= EQ
-       ,compare (card "6h") (card "5s") ~?= GT]
+       [comparing card "6h" "6s" ~?= EQ
+       ,comparing card "6h" "5s" ~?= GT]

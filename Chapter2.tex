@@ -145,7 +145,29 @@ data Card = C Value deriving (Ord,Eq)
 type Value = Int
 
 card :: String -> Card
-card [c,_] = C $ (ord c) - (ord 'O')
+card [c,_] = C $ (ord c) - (ord '0')
 \end{lstlisting} % $
 \success Done.
+\lhN Done ? I think I have a new test to write. But first I'll do some refactoring, too.
+\begin{lstlisting}[frame=single]
+main = runTestTT $ TestList 
+       [compare (card "6h") (card "6s") ~?= EQ
+       ,compare (card "6h") (card "5s") ~?= GT]
+\end{lstlisting}
+You remember about \il!comparing! right ?
+\begin{lstlisting}[frame=single]
+module Tests
+where 
+import Test.HUnit
+import PokerHand
+import Data.Ord (comparing)
+
+main = runTestTT $ TestList 
+       [comparing card "6h" "6s" ~?= EQ
+       ,comparing card "6h" "5s" ~?= GT]
+\end{lstlisting} 
+\success What do you think ?
+\lhA \success Nice!
+
+
 \lhend
