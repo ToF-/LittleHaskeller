@@ -294,7 +294,7 @@ expected: ["9h","2h","Th","Jh","Qh","Kh","Ah"]
  but got: ["2h","9h","Th","Jh","Qh","Kh","Ah"]
 \end{verbatim}
 \end{small}
-The test properly outputs the results as a list of \il!String!s. We can get back to the correct version. Oh, and use \il!words!.
+The test properly outputs the results as a list of \il!String!s. We can get back to the correct version. Oh, and using \il!words! on a single string for the definition of our deck.
 \lhN You are right. So this is the test code:
 \begin{lstlisting}[frame=single]
 module Tests
@@ -326,4 +326,6 @@ card ['J',_] = C 11
 card ['T',_] = C 10
 card [c,_] = C $ (ord c) - (ord '0')
 \end{lstlisting}
+\lhN What else do we 
+
 \lhend
