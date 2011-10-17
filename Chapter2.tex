@@ -19,14 +19,14 @@ main = runTestTT $ TestList
        [compare "6h" "6s" ~?= EQ]
 \end{lstlisting} % $
 What is the result?
-\lhA \failure Failure: 
+\lhA \failure The result is failure: 
 \begin{small} 
 \begin{verbatim}
 expected: EQ
  but got: LT
 \end{verbatim}
 \end{small}
-We're comparing \il!String!s when we should compare \il!Card!s.
+But it's not a big matter, since we're comparing \il!String!s when we should compare \il!Card!s.
 \lhN What is a \il!Card!?
 \lhA It's a new data type.
 \lhN How do I create values of this type?
@@ -53,19 +53,18 @@ accompanying binding
 Not in scope: type constructor or class `Card'
 \end{verbatim}
 \end{small}
-What do we have to do?
-\lhA \error Create the \il!Card! type:
+Can you write provide the missing parts ?
+\lhA \error OK, this is the \il!Card! type:
 \begin{lstlisting}[frame=single]
 data Card = C 
-
-card :: String -> Card
 \end{lstlisting}
 It has just a single value, \il!C!. And we implement the function
 \begin{lstlisting}[frame=single]
+card :: String -> Card
 card _ = C
 \end{lstlisting}
 which is just producing the single value.
-\lhN \error Woah! Here's a new one:
+\lhN \error Now we have another error:
 \begin{small}
 \begin{verbatim}
 No instance for (Ord Card) arising from a use 
@@ -74,8 +73,8 @@ Possible fix: add an instance declaration
 for (Ord Card)
 \end{verbatim}
 \end{small}
-Can we use this fix?
-\lhA \error Sure. Let's do what GHC suggests
+Should we make the suggested fix?
+\lhA \error Sure:
 \begin{lstlisting}[frame=single]
 data Card = C deriving (Ord)
 
@@ -92,7 +91,7 @@ for (Eq Card)
 \end{verbatim}
 \end{small}
 \hspace*{\fill} 
-\lhA \error Again, let's do what GHC suggests 
+\lhA \error Again, let's do what the compiler suggests 
 \begin{lstlisting}[frame=single]
 data Card = C deriving (Ord,Eq)
 
@@ -100,7 +99,7 @@ card :: String -> Card
 card _ = C
 \end{lstlisting}
 \success And the test passes.
-\lhN Of course, this is just a \emph{fake}..
+\lhN Of course, this is just a \emph{fake} implementation of the function \il!card!.
 \lhA Then write another test.
 \lhN Here you go:
 \begin{lstlisting}[frame=single]
@@ -117,7 +116,7 @@ type Value = Int
 card :: String -> Card
 card _ = C 0
 \end{lstlisting}
-\failure Of course, the test now fails, as we must calculate the real value, not zero. We have to think a bit.. 
+\failure Of course, the test now fails, as we must calculate the real value instead of returning zero. Let's think..
 \lhN \failure Just make the test pass. I don't like to have to think on a red bar.
 \lhA \failure Let's play ``\emph{fake it 'til you make it}'' then:
 \begin{lstlisting}[frame=single]
@@ -126,7 +125,7 @@ card ['6',_] = C 6
 card ['5',_] = C 5 
 \end{lstlisting}
 \success Now it's obvious.
-\lhN \success We just have to convert from \il!Char! to \il!Int!, using the \il!ord! function. Refactor it!
+\lhN \success Indeed, just convert from \il!Char! to \il!Int!, using the \il!ord! function. Do it.
 \lhA \success Ok!
 \begin{lstlisting}[frame=single]
 module PokerHand
@@ -173,14 +172,14 @@ main = runTestTT $ TestList
 \end{lstlisting} % $
 \failure We're expecting \il!LT! but get \il!GT!. Can you make it pass?
 \lhA
-\failure I think so, by adding special cases:
+\failure Sure:
 \begin{lstlisting}[frame=single]
 card :: String -> Card
 card ['J',_] = C 11
 card ['T',_] = C 10
 card [c,_] = C $ (ord c) - (ord '0')
 \end{lstlisting} % $
-\success Done.
+\success We just have to add special cases.
 \lhN Good. Here's a new one:
 \begin{lstlisting}[frame=single]
 main = runTestTT $ TestList 
@@ -190,7 +189,7 @@ main = runTestTT $ TestList
        ,comparing card "Kh" "Ah" ~?= LT]
 \end{lstlisting} % $
 \hspace*{\fill} 
-\lhA \failure Ok. That's easy: give each card its value:
+\lhA \failure Ok. 
 \begin{lstlisting}[frame=single]
 card :: String -> Card
 card ['A',_] = C 14
@@ -199,7 +198,7 @@ card ['J',_] = C 11
 card ['T',_] = C 10
 card [c,_] = C $ (ord c) - (ord '0')
 \end{lstlisting} % $
-\success Done.
+\success That's easy: give each card its value.
 \lhN We forgot the Queen value:
 \begin{lstlisting}[frame=single]
 main = runTestTT $ TestList 
@@ -222,8 +221,8 @@ card [c,_] = C $ (ord c) - (ord '0')
 \end{lstlisting} % $
 \success And we are done with card values.
 \lhN We are, but these tests are a bit heavy. Can you think of a way to avoid repeating all these comparisons?
-\lhA Yes: we could test the sorting of a deck of card against an expected deck.
-\lhN 
+\lhA Yes: we could test the sorting of a deck.
+\lhN  
 \begin{lstlisting}[frame=single]
 module Tests
 where 
@@ -231,9 +230,11 @@ import Test.HUnit
 import PokerHand
 import Data.List (sort)
 
-d = map card ["2h","9h","Th","Jh","Qh","Kh","Ah"]
+ud = map card ["Ah","2h","Th","Kh","9h","Qh","Jh"]
+sd = map card ["2h","9h","Th","Jh","Qh","Kh","Ah"]
+
 main = runTestTT $ TestList 
-       [sort d  ~?= d]
+       [sort ud  ~?= sd]
 \end{lstlisting} % $
 Is that what you mean?
 \lhA \error Yes, but we have a new problem.
@@ -252,9 +253,11 @@ Should we follow the suggestion?
 \lhA I have a better idea: instead of comparing lists of \il!Card!s we can compare lists of \il!String!s.
 \lhN \error Comparing the \il!String!s ? Ok:
 \begin{lstlisting}[frame=single]
-d = ["2h","9h","Th","Jh","Qh","Kh","Ah"]
+ud = ["Ah","2h","Th","Kh","9h","Qh","Jh"]
+sd = ["2h","9h","Th","Jh","Qh","Kh","Ah"]
+
 main = runTestTT $ TestList 
-       [sort d  ~?= d]
+       [sort ud  ~?= sd]
 \end{lstlisting} % $
 \failure But now the test fail:
 \begin{small}
@@ -274,27 +277,36 @@ allows us to do that.
 import Data.Ord (comparing)
 import Data.List (sortBy)
 
-d = ["2h","9h","Th","Jh","Qh","Kh","Ah"]
+ud = ["Ah","2h","Th","Kh","9h","Qh","Jh"]
+sd = ["2h","9h","Th","Jh","Qh","Kh","Ah"]
+
 main = runTestTT $ TestList 
-       [sortBy (comparing card) d  ~?= d]
+       [sortBy (comparing card) ud  ~?= sd]
 \end{lstlisting} % $
 \hspace*{\fill}
 \lhA \success Yes!
 \lhN I wonder what would the test show if it failed. Let's falsify it:
 \begin{lstlisting}[frame=single]
-d = ["9h","2h","Th","Jh","Qh","Kh","Ah"]
+import Data.Ord (comparing)
+import Data.List (sortBy)
+
+ud = ["3h","2h","Th","Kh","9h","Qh","Jh"]
+sd = ["2h","9h","Th","Jh","Qh","Kh","Ah"]
+
 main = runTestTT $ TestList 
-       [sortBy (comparing card) d  ~?= d]
+       [sortBy (comparing card) ud  ~?= sd]
 \end{lstlisting} % $
-\hspace*{\fill}
+I just changed the first value of the unsorted desk. 
 \lhA \failure Here is what the message says:
 \begin{small}
 \begin{verbatim}
-expected: ["9h","2h","Th","Jh","Qh","Kh","Ah"]
- but got: ["2h","9h","Th","Jh","Qh","Kh","Ah"]
+expected: ["2h","9h","Th","Jh","Qh","Kh","Ah"]
+ but got: ["2h","3h","9h","Th","Jh","Qh","Kh"]
 \end{verbatim}
 \end{small}
-The test properly outputs the results as a list of \il!String!s. We can get back to the correct version. Oh, and using \il!words! on a single string for the definition of our deck.
+The test properly outputs the results as a list of \il!String!s. You can un-falsify the test now.
+\lhN Yes.
+\lhA Oh, and using \il!words! for the definition of our decks would make the code prettier.
 \lhN You are right. So this is the test code:
 \begin{lstlisting}[frame=single]
 module Tests
@@ -304,12 +316,14 @@ import PokerHand
 import Data.Ord (comparing)
 import Data.List (sortBy)
 
-d = words "2h 9h Th Jh Qh Kh Ah"
+ud = words "Ah 2h Th Kh 9h Qh Jh"
+sd = words "2h 9h Th Jh Qh Kh Ah"
+
 main = runTestTT $ TestList 
-       [sortBy (comparing card) d  ~?= d]
+       [sortBy (comparing card) ud  ~?= sd]
 \end{lstlisting} % $
 \hspace*{\fill}
-\lhA And this is the tested code:
+\lhA \success And this is the tested code:
 \begin{lstlisting}[frame=single]
 module PokerHand
 where
@@ -325,7 +339,6 @@ card ['Q',_] = C 12
 card ['J',_] = C 11
 card ['T',_] = C 10
 card [c,_] = C $ (ord c) - (ord '0')
-\end{lstlisting}
-\lhN What else do we 
+\end{lstlisting} %$ 
 
 \lhend

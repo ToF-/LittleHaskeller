@@ -3,6 +3,7 @@ where
 import Char
 
 data Card = C Value deriving (Ord,Eq)
+
 type Value = Int
 
 card :: String -> Card
