@@ -13,4 +13,7 @@ card ['J',_] = C 11
 card ['T',_] = C 10
 card [c,_] = C $ (ord c) - (ord '0')
 
+flush :: [Card] -> Bool
+flush _ = True
+
 

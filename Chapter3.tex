@@ -1,0 +1,39 @@
+\newpage
+%----------------------------------------------------------------------------------------------------
+\section{Looking for a Flush} % 
+%----------------------------------------------------------------------------------------------------
+\vspace{10cm}
+\hrule
+
+\lhQ What is the task with regard to card comparison ?
+\lhA We need to compare suits so that we can find a \emph{flush}.
+\lhN Ok I'll write a test:
+\begin{lstlisting}[frame=single]
+ud = words "Ah 2h Th Kh 9h Qh Jh"
+sd = words "2h 9h Th Jh Qh Kh Ah"
+
+main = runTestTT $ TestList 
+       [sortBy (comparing card) ud  ~?= sd
+       ,flush (cards "Ah Th 3h 4h 2h") ~?= True]
+    where cards = map card . words
+\end{lstlisting} % $ 
+\hspace*{\fill}
+\lhA \error Let's write a function \il!flush!
+\begin{lstlisting}[frame=single]
+flush :: [Card] -> Bool
+flush _ = True
+\end{lstlisting}
+\success Done.
+\lhN I see. Still the emph{fake it 'til you make it} approach.
+\lhA This is the simplest thing that makes the test pass.
+\lhN Ok. Here is another test:
+\begin{lstlisting}[frame=single]
+main = runTestTT $ TestList 
+       [sortBy (comparing card) ud  ~?= sd
+       ,flush (cards "Ah Th 3h 4h 2h") ~?= True
+       ,flush (cards "Ad Th 3d 4h 2h") ~?= False ]
+    where cards = map card . words
+\end{lstlisting} % $
+Can you make it pass ?
+\lhA \failure I don't think so.
+\lhend
