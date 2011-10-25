@@ -2,18 +2,26 @@ module PokerHand
 where
 import Char
 
-data Card = C Value deriving (Ord,Eq)
+data Card = C Value Suit deriving (Ord,Eq)
 type Value = Int
 
+
 card :: String -> Card
-card ['A',_] = C 14
-card ['K',_] = C 13
-card ['Q',_] = C 12
-card ['J',_] = C 11
-card ['T',_] = C 10
-card [c,_] = C $ (ord c) - (ord '0')
+card [v,s] = C (value v) s
+    where 
+      value 'A' = 14
+      value 'K' = 13
+      value 'Q' = 12
+      value 'J' = 11
+      value 'T' = 10
+      value  c  = ((ord c) - (ord '0'))
 
 flush :: [Card] -> Bool
-flush _ = True
+flush (c:cs) = all (\x -> suit x == suit c) cs
+
+type Suit = Char
+
+suit :: Card -> Suit
+suit (C _ s) = s
 
 

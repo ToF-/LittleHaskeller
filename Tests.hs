@@ -10,7 +10,9 @@ sd = words "2h 9h Th Jh Qh Kh Ah"
 
 main = runTestTT $ TestList 
        [sortBy (comparing card) ud  ~?= sd
+       ,map suit (cards "Ac Ad Ah As") ~?= ['c','d','h','s']
        ,flush (cards "Ah Th 3h 4h 2h") ~?= True
-       ,flush (cards "Ad Th 3d 4h 2h") ~?= False ]
+       ,flush (cards "Ad Th 3h 4h 2s") ~?= False
+       ,flush (cards "Ad Td 3d 4d 2d") ~?= True]
     where cards = map card . words
 
