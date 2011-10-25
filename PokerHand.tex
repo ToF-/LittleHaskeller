@@ -2,6 +2,7 @@
 \usepackage{longtable,geometry}
 \usepackage[english]{babel}
 \usepackage[latin1]{inputenc}
+\usepackage{amsmath, amssymb}
 \usepackage[T1]{fontenc}
 \usepackage[babel]{csquotes}
 \usepackage{multicol}
@@ -14,6 +15,7 @@
 \usepackage{amssymb,amsmath} 
 \usepackage{listings}
 \usepackage{verbatim}
+\usepackage{alltt}
 \usepackage{moreverb}
 \usepackage{txfonts}
 \addtolength{\hoffset}{-1.5cm}
@@ -31,7 +33,8 @@
 	columns=fullflexible,
 	tabsize=4,
 	tab=$\to$,
-	literate={->}{$\to$ }2 {>=}{$\geq$}1 {==>}{$\Longrightarrow$}1 {lll}{$\lambda$}1 {__}{\space}1,
+	literate={->}{$\to$ }2 {>=}{$\geq$}1 {==>}{$\Longrightarrow$}1 {lll}{$\lambda$}1 {__}{\space}1 
+        {__c}{\monoclubs}1 {__d}{\monodiamonds}1 {__h}{\monohearts}1 {__s}{\monospades}1 , 
 	numberstyle=\tiny,
 	float=tbph,
 	extendedchars,

@@ -9,12 +9,12 @@
 \lhA We need to compare suits so that we can find a \emph{flush}.
 \lhN Ok I'll write a test:
 \begin{lstlisting}[frame=single]
-ud = words "Ah 2h Th Kh 9h Qh Jh"
-sd = words "2h 9h Th Jh Qh Kh Ah"
+ud = words "A__c 2__c T__c K__c 9__c Q__c J__c"
+sd = words "2__c 9__c T__c J__c Q__c K__c A__c"
 
 main = runTestTT $ TestList 
        [sortBy (comparing card) ud  ~?= sd
-       ,flush (cards "Ah Th 3h 4h 2h") ~?= True]
+       ,flush (cards "A__c T__c 3__c 4__c 2__c") ~?= True]
     where cards = map card . words
 \end{lstlisting} % $ 
 \hspace*{\fill}
@@ -24,14 +24,14 @@ flush :: [Card] -> Bool
 flush _ = True
 \end{lstlisting}
 \success Done.
-\lhN I see. Still the emph{fake it 'til you make it} approach.
+\lhN I see. Still the \emph{fake it 'til you make it} approach.
 \lhA This is the simplest thing that makes the test pass.
 \lhN Ok. Here is another test:
 \begin{lstlisting}[frame=single]
 main = runTestTT $ TestList 
        [sortBy (comparing card) ud  ~?= sd
-       ,flush (cards "Ah Th 3h 4h 2h") ~?= True
-       ,flush (cards "Ad Th 3h 4h 2h") ~?= False ]
+       ,flush (cards "A__c T__c 3__c 4__c 2__c") ~?= True
+       ,flush (cards "A__s T__c 3__c 4__c 2__c") ~?= False ]
     where cards = map card . words
 \end{lstlisting} % $
 Can you make it pass ?
@@ -44,8 +44,8 @@ Can you make it pass ?
 \begin{lstlisting}[frame=single]
 main = runTestTT $ TestList 
        [sortBy (comparing card) ud  ~?= sd
-       ,flush (cards "Ah Th 3h 4h 2h") ~?= True
-       ,map suit (cards "Ac Ad Ah As") ~?= ['c','d','h','s']]
+       ,flush (cards "A__c T__c 3__c 4__c 2__c") ~?= True
+       ,map suit (cards "A__c A__d A__c A__s") ~?= ['__c','__d','__c','__s']]
     where cards = map card . words
 \end{lstlisting} % $
 Can you make this one pass ?  
@@ -54,7 +54,7 @@ Can you make this one pass ?
 type Suit = Char
 
 suit :: Card -> Suit
-suit _ = 'h'
+suit _ = '__c'
 \end{lstlisting}
 \failure Now the test is failing.
 \lhN What else is needed ?
@@ -99,26 +99,26 @@ card [v,s] = C (value v) s
 \begin{lstlisting}[frame=single]
 main = runTestTT $ TestList 
        [sortBy (comparing card) ud  ~?= sd
-       ,flush (cards "Ah Th 3h 4h 2h") ~?= True
-       ,map suit (cards "Ac Ad Ah As") ~?= ['c','d','h','s']
-       ,flush (cards "Ad Th 3h 4h 2s") ~?= False]
+       ,flush (cards "A__c T__c 3__c 4__c 2__c") ~?= True
+       ,map suit (cards "A__c A__d A__c A__s") ~?= ['__c','__d','__c','__s']
+       ,flus__c (cards "A__s T__c 3__c 4__c 2__c") ~?= False]
     where cards = map card . words
 \end{lstlisting} % $
-Do you see how to make it pass now ?
-\lhA \failure I'll make it pass as fast as I can:
+Do you see how to make it pass ?
+\lhA \failure Sure: 
 \begin{lstlisting}[frame=single]
 flush :: [Card] -> Bool
-flush (c:_) = suit c == 'h'
+flush (c:_) = suit c == '__c'
 \end{lstlisting}
-\success That's still a \emph{fake} of course.
+\success As you see, it's a \emph{fake}.
 \lhN In that case, I'll add a new test :
 \begin{lstlisting}[frame=single]
 main = runTestTT $ TestList 
        [sortBy (comparing card) ud  ~?= sd
-       ,map suit (cards "Ac Ad Ah As") ~?= ['c','d','h','s']
-       ,flush (cards "Ah Th 3h 4h 2h") ~?= True
-       ,flush (cards "Ad Th 3h 4h 2s") ~?= False
-       ,flush (cards "Ad Td 3d 4d 2d") ~?= True]
+       ,map suit (cards "A__c A__d A__h A__s") ~?= ['__c','__d','__c','__s']
+       ,flush (cards "A__c T__c 3__c 4__c 2__c") ~?= True
+       ,flush (cards "A__s T__c 3__c 4__c 2__c") ~?= False
+       ,flush (cards "A__s T__s 3__s 4__s 2__s") ~?= True]
     where cards = map card . words
 \end{lstlisting} % $
 \hspace*{\fill}
