@@ -12,7 +12,7 @@ main = runTestTT $ TestList
        [sortBy (comparing card) ud  ~?= sd
        ,map suit (cards "A♣ A♦ A♥ A♠") ~?= ['♣','♦','♥','♠']
        ,flush (cards "A♥ T♥ 3♥ 4♥ 2♥") ~?= True
-       ,flush (cards "A♦ T♥ 3♥ 4♥ 2s") ~?= False
+       ,flush (cards "A♦ T♥ 3♥ 4♥ 2♥") ~?= False
        ,flush (cards "A♦ T♦ 3♦ 4♦ 2♦") ~?= True]
     where cards = map card . words
 
