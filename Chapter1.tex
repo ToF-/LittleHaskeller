@@ -8,8 +8,8 @@
 \lhQ What is this : \il!"8__h"!?
 \lhA A \il!String!.
 \lhN Yes. What does it represent?
-\lhA A height of hearts, or \hearts8.
-\lhN What \il!"7__c6__d9__s"! represent?
+\lhA An eight of hearts, or \hearts8.
+\lhN What does \il!"7__c6__d9__s"! represent?
 \lhA Some others cards: \clubs7, \diamonds6, and \spades9.
 \lhN Right. And what does \il!"A__h K__h Q__h J__h T__h"! represent?
 \lhA It represents victory: it's a royal flush.
@@ -30,22 +30,22 @@ What about \clubs K \spades9 \spades K \diamonds K \diamonds9  \clubs3 \diamonds
 \lhN We have to write a program wich, given this input:
 \begin{alltt}
 \clubs{K} \spades{9} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6}
-9c Ah \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6}
-Ac Qc \spades{K} \diamonds{K} \diamonds{9} \clubs{3}
+\clubs{9} \hearts{A} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6}
+\clubs{A} \clubs{Q} \spades{K} \diamonds{K} \diamonds{9} \clubs{3}
 \hearts{9} \spades{5}
-4d 2d \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6}
-7s Ts \spades{K} \diamonds{K} \diamonds{9}
+\diamonds{4} \diamonds{2} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6}
+\spades{7} \spades{T} \spades{K} \diamonds{K} \diamonds{9}
 \end{alltt}
 \hspace*{\fill} 
 \lhA These are the cards of some players in a game of \emph{Texas Hold'em}. Right?
 \lhN -- right -- ..would output this:
 \begin{alltt}
 \clubs{K} \spades{9} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6} Full House (winner)
-9c Ah \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6} Two Pair
-Ac Qc \spades{K} \diamonds{K} \diamonds{9} \clubs{3} 
+\clubs{9} \hearts{A} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6} Two Pair
+\clubs{A} \clubs{Q} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} 
 \hearts{9} \spades{5} 
-4d 2d \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6} Flush
-7s Ts \spades{K} \diamonds{K} \diamonds{9} 
+\diamonds{4} \diamonds{2} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6} Flush
+\spades{7} \spades{T} \spades{K} \diamonds{K} \diamonds{9} 
 \end{alltt}
 \hspace*{\fill} 
 \lhA I see. 
