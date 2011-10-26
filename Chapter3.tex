@@ -101,7 +101,7 @@ main = runTestTT $ TestList
        [sortBy (comparing card) ud  ~?= sd
        ,flush (cards "A__c T__c 3__c 4__c 2__c") ~?= True
        ,map suit (cards "A__c A__d A__c A__s") ~?= ['__c','__d','__c','__s']
-       ,flus__c (cards "A__s T__c 3__c 4__c 2__c") ~?= False]
+       ,flush (cards "A__s T__c 3__c 4__c 2__c") ~?= False]
     where cards = map card . words
 \end{lstlisting} % $
 Do you see how to make it pass ?
