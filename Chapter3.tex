@@ -80,17 +80,22 @@ suit (C _ s) = s
 \end{lstlisting}
 \success And now we can get \il!Suit!s from \il!Card!s.
 \lhN Good. Refactor the code, now.
-\lhA \success Allright.
+\lhA \success Allright. First I can discard the \il!suit! function by declaring labels:
+\begin{lstlisting}[frame=single]
+data Card = C { value :: Value, suit :: Suit } 
+            deriving (Ord,Eq)
+\end{lstlisting}
+Then I can separate concerns in the \il!card! function:
 \begin{lstlisting}[frame=single]
 card :: String -> Card
-card [v,s] = C (value v) s
+card [v,s] = C (toValue v) s
     where 
-      value 'A' = 14
-      value 'K' = 13
-      value 'Q' = 12
-      value 'J' = 11
-      value 'T' = 10
-      value  c  = ((ord c) - (ord '0'))
+      toValue 'A' = 14
+      toValue 'K' = 13
+      toValue 'Q' = 12
+      toValue 'J' = 11
+      toValue 'T' = 10
+      toValue  c  = ((ord c) - (ord '0'))
 \end{lstlisting}
 \success Done.
 \lhN Can I add my test on \il!flush! now ?
@@ -115,8 +120,8 @@ flush (c:_) = suit c == '__c'
 \begin{lstlisting}[frame=single]
 main = runTestTT $ TestList 
        [sortBy (comparing card) ud  ~?= sd
-       ,map suit (cards "A__c A__d A__h A__s") ~?= ['__c','__d','__c','__s']
        ,flush (cards "A__c T__c 3__c 4__c 2__c") ~?= True
+       ,map suit (cards "A__c A__d A__h A__s") ~?= ['__c','__d','__c','__s']
        ,flush (cards "A__s T__c 3__c 4__c 2__c") ~?= False
        ,flush (cards "A__s T__s 3__s 4__s 2__s") ~?= True]
     where cards = map card . words
@@ -128,6 +133,51 @@ flush :: [Card] -> Bool
 flush (c:cs) = all (\x -> suit x == suit c) cs
 \end{lstlisting}
 \success Of course, we're assuming that the \il!flush! function will always consume non-empty lists. 
+\lhN Ok. This are the tests so far:
+\begin{lstlisting}[frame=single]
+module Tests
+where 
+import Test.HUnit
+import PokerHand
+import Data.Ord (comparing)
+import Data.List (sort,sortBy)
+
+ud = words "A__c 2__c T__c K__c 9__c Q__c J__c"
+sd = words "2__c 9__c T__c J__c Q__c K__c A__c"
+
+main = runTestTT $ TestList 
+       [sortBy (comparing card) ud  ~?= sd
+       ,map suit (cards "A__c A__d A__h A__s") ~?= ['__c','__d','__h','__s']
+       ,flush (cards "A__c T__c 3__c 4__c 2__c") ~?= True
+       ,flush (cards "A__s T__c 3__c 4__c 2__c") ~?= False
+       ,flush (cards "A__s T__s 3__s 4__s 2__s") ~?= True]
+    where cards = map card . words
+\end{lstlisting} % $
+\hspace*{\fill}
+\lhA And this is the tested code:
+\begin{lstlisting}[frame=single]
+module PokerHand
+where
+import Char
+
+data Card = C { value :: Value, suit :: Suit } 
+            deriving (Ord,Eq)
+type Value = Int
+type Suit = Char
+
+card :: String -> Card
+card [v,s] = C (toValue v) s
+    where 
+      toValue 'A' = 14
+      toValue 'K' = 13
+      toValue 'Q' = 12
+      toValue 'J' = 11
+      toValue 'T' = 10
+      toValue  c  = ((ord c) - (ord '0'))
+
+flush :: [Card] -> Bool
+flush (c:cs) = all (\x -> suit x == suit c) cs
+\end{lstlisting}
 \lhN Are we done with comparing cards ?
 \lhA I think so. Let's have lunch.
 \lhend
