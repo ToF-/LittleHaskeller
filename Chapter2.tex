@@ -1,6 +1,6 @@
 \newpage
 %----------------------------------------------------------------------------------------------------
-\section{Dealing with Cards} % 11111111111111111111111111111111111111111111111111111111111111111111
+\section{Dealing with Cards} 
 %----------------------------------------------------------------------------------------------------
 \vspace{10cm}
 \hrule
@@ -16,7 +16,7 @@ where
 import Test.HUnit
 
 main = runTestTT $ TestList 
-       [compare "6__c" "6__s" ~?= EQ]
+       [compare "6♣" "6♠" ~?= EQ]
 \end{lstlisting} % $
 What is the result?
 \lhA \failure The result is failure: 
@@ -34,7 +34,7 @@ But it's not a big matter, since we're comparing \il!String!s when we should com
 \lhN Ok. I'll just call that function \il!card! :
 \begin{lstlisting}[frame=single]
 main = runTestTT $ TestList 
-       [compare (card "6__c") (card "6__s") ~?= EQ] 
+       [compare (card "6♣") (card "6♠") ~?= EQ] 
 \end{lstlisting} % $
 What now?
 \lhA \error Error, as expected. Let me just write the function.
@@ -104,8 +104,8 @@ card _ = C
 \lhN Here you go:
 \begin{lstlisting}[frame=single]
 main = runTestTT $ TestList 
-       [compare (card "6__c") (card "6__s") ~?= EQ
-       ,compare (card "6__c") (card "5__s") ~?= GT]
+       [compare (card "6♣") (card "6♠") ~?= EQ
+       ,compare (card "6♣") (card "5♠") ~?= GT]
 \end{lstlisting} % $
 How do we make it pass?
 \lhA \error We have to compare the rank values of the cards, so we should store this value in the \il!Card! type:
@@ -142,8 +142,8 @@ card [c,_] = C $ (ord c) - (ord '0')
 \lhN Done? I think I have a new test to write. But first I'll do some refactoring, too.
 \begin{lstlisting}[frame=single]
 main = runTestTT $ TestList 
-       [compare (card "6__c") (card "6__s") ~?= EQ
-       ,compare (card "6__c") (card "5__s") ~?= GT]
+       [compare (card "6♣") (card "6♠") ~?= EQ
+       ,compare (card "6♣") (card "5♠") ~?= GT]
 \end{lstlisting} % $
 You know about \il!comparing! right?
 \lhA Yes, and so does $GHCI$: \\
@@ -158,17 +158,17 @@ You know about \il!comparing! right?
 import Data.Ord (comparing)
 
 main = runTestTT $ TestList 
-       [comparing card "6__c" "6__s" ~?= EQ
-       ,comparing card "6__c" "5__s" ~?= GT]
+       [comparing card "6♣" "6♠" ~?= EQ
+       ,comparing card "6♣" "5♠" ~?= GT]
 \end{lstlisting} % $
 \hspace*{\fill}
 \lhA \success Nice!
 \lhN Now for my new test:
 \begin{lstlisting}[frame=single]
 main = runTestTT $ TestList 
-       [comparing card "6__c" "6__s" ~?= EQ
-       ,comparing card "6__c" "5__s" ~?= GT
-       ,comparing card "T__c" "J__s" ~?= LT]
+       [comparing card "6♣" "6♠" ~?= EQ
+       ,comparing card "6♣" "5♠" ~?= GT
+       ,comparing card "T♣" "J♠" ~?= LT]
 \end{lstlisting} % $
 \failure We're expecting \il!LT! but get \il!GT!. Can you make it pass?
 \lhA
@@ -183,10 +183,10 @@ card [c,_] = C $ (ord c) - (ord '0')
 \lhN Good. Here's a new one:
 \begin{lstlisting}[frame=single]
 main = runTestTT $ TestList 
-       [comparing card "6__c" "6__s" ~?= EQ
-       ,comparing card "6__c" "5__s" ~?= GT
-       ,comparing card "T__c" "J__s" ~?= LT
-       ,comparing card "K__c" "A__c" ~?= LT]
+       [comparing card "6♣" "6♠" ~?= EQ
+       ,comparing card "6♣" "5♠" ~?= GT
+       ,comparing card "T♣" "J♠" ~?= LT
+       ,comparing card "K♣" "A♣" ~?= LT]
 \end{lstlisting} % $
 \hspace*{\fill} 
 \lhA \failure Ok. 
@@ -202,11 +202,11 @@ card [c,_] = C $ (ord c) - (ord '0')
 \lhN We forgot the Queen value:
 \begin{lstlisting}[frame=single]
 main = runTestTT $ TestList 
-       [comparing card "6__c" "6__s" ~?= EQ
-       ,comparing card "6__c" "5__s" ~?= GT
-       ,comparing card "T__c" "J__s" ~?= LT
-       ,comparing card "K__c" "A__c" ~?= LT
-       ,comparing card "Q__c" "K__c" ~?= LT]
+       [comparing card "6♣" "6♠" ~?= EQ
+       ,comparing card "6♣" "5♠" ~?= GT
+       ,comparing card "T♣" "J♠" ~?= LT
+       ,comparing card "K♣" "A♣" ~?= LT
+       ,comparing card "Q♣" "K♣" ~?= LT]
 \end{lstlisting} % $
 Can you add it?
 \lhA \failure Sure:
@@ -230,8 +230,8 @@ import Test.HUnit
 import PokerHand
 import Data.List (sort)
 
-ud = map card ["A__c","2__c","T__c","K__c","9__c","Q__c","J__c"]
-sd = map card ["2__c","9__c","T__c","J__c","Q__c","K__c","A__c"]
+ud = map card ["A♣","2♣","T♣","K♣","9♣","Q♣","J♣"]
+sd = map card ["2♣","9♣","T♣","J♣","Q♣","K♣","A♣"]
 
 main = runTestTT $ TestList 
        [sort ud  ~?= sd]
@@ -253,13 +253,13 @@ Should we follow the suggestion?
 \lhA I have a better idea: instead of comparing lists of \il!Card!s we can compare lists of \il!String!s.
 \lhN \error Comparing the \il!String!s ? Ok:
 \begin{lstlisting}[frame=single]
-ud = ["A__c","2__c","T__c","K__c","9__c","Q__c","J__c"]
-sd = ["2__c","9__c","T__c","J__c","Q__c","K__c","A__c"]
+ud = ["A♣","2♣","T♣","K♣","9♣","Q♣","J♣"]
+sd = ["2♣","9♣","T♣","J♣","Q♣","K♣","A♣"]
 
 main = runTestTT $ TestList 
        [sort ud  ~?= sd]
 \end{lstlisting} % $
-\failure But now the test fail:
+\failure But now the test fails:
 \begin{small}
 \begin{alltt}
 expected: ["2\monoclubs","9\monoclubs","T\monoclubs","J\monoclubs","Q\monoclubs","K\monoclubs","A\monoclubs"]
@@ -277,8 +277,8 @@ allows us to do that.
 import Data.Ord (comparing)
 import Data.List (sortBy)
 
-ud = ["A__c","2__c","T__c","K__c","9__c","Q__c","J__c"]
-sd = ["2__c","9__c","T__c","J__c","Q__c","K__c","A__c"]
+ud = ["A♣","2♣","T♣","K♣","9♣","Q♣","J♣"]
+sd = ["2♣","9♣","T♣","J♣","Q♣","K♣","A♣"]
 
 main = runTestTT $ TestList 
        [sortBy (comparing card) ud  ~?= sd]
@@ -290,8 +290,8 @@ main = runTestTT $ TestList
 import Data.Ord (comparing)
 import Data.List (sortBy)
 
-ud = ["3__c","2__c","T__c","K__c","9__c","Q__c","J__c"]
-sd = ["2__c","9__c","T__c","J__c","Q__c","K__c","A__c"]
+ud = ["3♣","2♣","T♣","K♣","9♣","Q♣","J♣"]
+sd = ["2♣","9♣","T♣","J♣","Q♣","K♣","A♣"]
 
 main = runTestTT $ TestList 
        [sortBy (comparing card) ud  ~?= sd]
@@ -316,8 +316,8 @@ import PokerHand
 import Data.Ord (comparing)
 import Data.List (sortBy)
 
-ud = words "A__c 2__c T__c K__c 9__c Q__c J__c"
-sd = words "2__c 9__c T__c J__c Q__c K__c A__c"
+ud = words "A♣ 2♣ T♣ K♣ 9♣ Q♣ J♣"
+sd = words "2♣ 9♣ T♣ J♣ Q♣ K♣ A♣"
 
 main = runTestTT $ TestList 
        [sortBy (comparing card) ud  ~?= sd]

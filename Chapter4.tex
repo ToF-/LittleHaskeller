@@ -1,0 +1,42 @@
+\newpage
+%----------------------------------------------------------------------------------------------------
+\section{``Pair'' Programming} 
+%----------------------------------------------------------------------------------------------------
+\vspace{10cm}
+\hrule
+
+\lhQ Now that we have suitable tools to compare cards, what should we do ?
+\lhA Compare hands.
+\lhN What is the simplest hand comparison we could write a test for ?
+\lhA Let's try comparing simple ``High Cards'' hands.
+\lhN Ok. Here is a new test:
+\begin{lstlisting}[frame=single]
+main = runTestTT $ TestList 
+       [sortBy (comparing card) ud  ~?= sd
+       ,map suit (cards "A♣ A♦ A♥ A♠") ~?= ['♣','♦','♥','♠']
+       ,flush (cards "A♣ T♣ 3♣ 4♣ 2♣") ~?= True
+       ,flush (cards "A♠ T♣ 3♣ 4♣ 2♣") ~?= False
+       ,flush (cards "A♠ T♠ 3♠ 4♠ 2♠") ~?= True
+       ,comparing hand "6♣ 4♦ A♣ 3♠ K♠" "8♠ J♥ 7♦ 5♥ 6♣" ~?= GT]
+    where cards = map card . words 
+\end{lstlisting} % $
+\hspace*{\fill}
+\lhA This last test is a bit long.
+\lhN Ok, let's rephrase it this way:
+\begin{lstlisting}[frame=single]
+main = runTestTT $ TestList 
+       [sortBy (comparing card) ud  ~?= sd
+       ,map suit (cards "A♣ A♦ A♥ A♠") ~?= ['♣','♦','♥','♠']
+       ,flush (cards "A♣ T♣ 3♣ 4♣ 2♣") ~?= True
+       ,flush (cards "A♠ T♣ 3♣ 4♣ 2♣") ~?= False
+       ,flush (cards "A♠ T♠ 3♠ 4♠ 2♠") ~?= True
+       ,"6♣ 4♦ A♣ 3♠ K♠" `beat` "8♥ J♥ 7♦ 5♥ 6♣"]
+    where cards = map card . words 
+          beat h g = comparing hand h g ~?= GT
+\end{lstlisting} % $
+\hspace*{\fill}
+\lhA OK.
+\lhend
+
+
+

@@ -13,6 +13,10 @@ main = runTestTT $ TestList
        ,map suit (cards "A♣ A♦ A♥ A♠") ~?= ['♣','♦','♥','♠']
        ,flush (cards "A♣ T♣ 3♣ 4♣ 2♣") ~?= True
        ,flush (cards "A♠ T♣ 3♣ 4♣ 2♣") ~?= False
-       ,flush (cards "A♠ T♠ 3♠ 4♠ 2♠") ~?= True]
-    where cards = map card . words
+       ,flush (cards "A♠ T♠ 3♠ 4♠ 2♠") ~?= True
+       ,"6♣ 4♦ A♣ 3♠ K♠" `beat` "8♥ J♥ 7♦ 5♥ 6♣"]
+    where cards = map card . words 
+          beat h g = comparing hand h g ~?= GT
+
+
 
