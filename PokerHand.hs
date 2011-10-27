@@ -1,6 +1,7 @@
 module PokerHand
 where
 import Char
+import Data.List
 
 data Card = C { value :: Value, suit :: Suit } 
             deriving (Ord,Eq)
@@ -20,5 +21,8 @@ card [v,s] = C (toValue v) s
 flush :: [Card] -> Bool
 flush (c:cs) = all (\x -> suit x == suit c) cs
 
+hand :: String -> [Card]
+hand = sortBy (flip compare) . cards
 
-
+cards :: String -> [Card]
+cards = map card . words 

@@ -10,7 +10,7 @@
 \lhN What is the simplest hand comparison we could write a test for ?
 \lhA Let's try comparing simple ``High Cards'' hands.
 \lhN Ok. Here is a new test:
-\begin{lstlisting}[frame=single]
+\begin{lstlisting}[frame=single,escapechar=!]
 main = runTestTT $ TestList 
        [sortBy (comparing card) ud  ~?= sd
        ,map suit (cards "A♣ A♦ A♥ A♠") ~?= ['♣','♦','♥','♠']
@@ -35,8 +35,51 @@ main = runTestTT $ TestList
           beat h g = comparing hand h g ~?= GT
 \end{lstlisting} % $
 \hspace*{\fill}
-\lhA OK.
+\lhA \error OK. We need to create the \il!hand! function. But first I will borrow your \il!cards! utility function.
+\lhN Sure, take it to your side.
+\begin{lstlisting}[frame=single]
+main = runTestTT $ TestList 
+       [sortBy (comparing card) ud  ~?= sd
+       ,map suit (cards "A♣ A♦ A♥ A♠") ~?= ['♣','♦','♥','♠']
+       ,flush (cards "A♣ T♣ 3♣ 4♣ 2♣") ~?= True
+       ,flush (cards "A♠ T♣ 3♣ 4♣ 2♣") ~?= False
+       ,flush (cards "A♠ T♠ 3♠ 4♠ 2♠") ~?= True
+       ,"6♣ 4♦ A♣ 3♠ K♠" `beat` "8♥ J♥ 7♦ 5♥ 6♣"]
+    where beat h g = comparing hand h g ~?= GT
+\end{lstlisting} % $
+\hspace*{\fill}
+\lhA \error Thanks
+\begin{lstlisting}[frame=single]
+cards :: String -> [Card]
+cards = map card . words 
+\end{lstlisting}
+In fact forming a hand is just making \il!Card!s from \il!String!s and sorting them:
+\begin{lstlisting}[frame=single]
+hand :: String -> [Card]
+hand = sort . cards
+\end{lstlisting}
+\failure Except we get \il!LT! instead of \il!GT!.
+\lhN Of course: we're sorting in the wrong order. How can we change the sorting order ?
+\lhA We can use \il!sortBy! and a give it the proper comparison function. 
+\lhN Given what $GHCI$ tells us about \il!sort!, \il!sortBy! and \il!compare!:
+\begin{small}
+\begin{verbatim}
+:type sort
+sort :: (Ord a) => [a] -> [a]
+:type sortBy
+sortBy :: (a -> a -> Ordering) -> [a] -> [a]
+:type compare
+compare :: (Ord a) => a -> a -> Ordering
+\end{verbatim}
+\end{small}
+We know that \il!sortBy compare! is equivalent to \il!sort!. 
+How can we reverse the result given by \il!compare! ?
+\lhA By \il!flip!ping its argument. \il!flip f a b! is equivalent to \il!f b a!. Thus:
+\begin{lstlisting}[frame=single]
+hand :: String -> [Card]
+hand = sortBy (flip compare) . cards
+\end{lstlisting}
+\success will do the trick.
 \lhend
-
 
 
