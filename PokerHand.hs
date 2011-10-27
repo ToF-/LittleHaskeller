@@ -21,8 +21,12 @@ card [v,s] = C (toValue v) s
 flush :: [Card] -> Bool
 flush (c:cs) = all (\x -> suit x == suit c) cs
 
-hand :: String -> [Card]
-hand = sortBy (flip compare) . cards
+data Hand = HighCard [Card]
+          | Pair  deriving (Ord,Eq)
+
+hand :: String -> Hand
+hand "5♥ 4♦ 3♥ 2♦ 2♥" = Pair 
+hand s = HighCard $ sortBy (flip compare) $ cards s
 
 cards :: String -> [Card]
 cards = map card . words 
