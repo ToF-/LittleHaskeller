@@ -16,7 +16,8 @@ main = runTestTT $ TestList
        ,flush (cards "A♠ T♠ 3♠ 4♠ 2♠") ~?= True
        ,"6♣ 4♦ A♣ 3♠ K♠" `beat` "8♥ J♥ 7♦ 5♥ 6♣"
        ,"5♥ 2♦ 3♥ 4♦ 2♥" `beat` "A♥ K♥ Q♦ J♦ T♥"
-       ,"5♥ 4♦ 3♥ 2♦ 3♣" `beat` "A♥ K♥ Q♦ J♦ T♥"]
+       ,"5♥ 4♦ 3♥ 2♦ 3♣" `beat` "A♥ K♥ Q♦ J♦ T♥"
+       ,"5♥ 4♦ 3♥ 3♣ 2♥" `beat` "7♦ 5♥ 3♦ 2♠ 2♦"]
     where beat h g = comparing hand h g ~?= GT
 
 

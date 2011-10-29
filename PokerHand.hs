@@ -1,6 +1,7 @@
 module PokerHand
 where
 import Char
+import Data.Ord
 import Data.List
 
 data Card = C { value :: Value, suit :: Suit } 
@@ -9,7 +10,8 @@ type Value = Int
 type Suit = Char
 
 data Hand = HighCard [Card]
-          | Pair  deriving (Ord,Eq)
+          | Pair     [Card]
+            deriving (Ord,Eq)
 
 card :: String -> Card
 card [v,s] = C (toValue v) s
@@ -21,18 +23,19 @@ card [v,s] = C (toValue v) s
       toValue 'T' = 10
       toValue  c  = ((ord c) - (ord '0'))
 
-flush :: [Card] -> Bool
-flush (c:cs) = all (same suit c) cs
-
 same :: (Eq a) => (t -> a) -> t -> t -> Bool
 same f a b = f a == f b
 
+flush :: [Card] -> Bool
+flush (c:cs) = all (same suit c) cs
+
 hand :: String -> Hand
-hand s = case length gs  of
-           4 -> Pair
-           5 -> HighCard cs 
+hand s = case gs  of
+           [[a,b],[c],[d],[e]] -> Pair [a,b,c,d,e]
+           [_,_,_,_,_] -> HighCard cs 
        where cs = sortBy (flip compare) $ cards s
-             gs = groupBy (same value) cs
+             gs = sortBy (flip groupSize) $ groupBy (same value) cs
+             groupSize  = comparing length 
 
 cards :: String -> [Card]
 cards = map card . words 

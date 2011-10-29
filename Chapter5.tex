@@ -1,0 +1,119 @@
+\newpage
+%----------------------------------------------------------------------------------------------------
+\section{Comparing Pairs} 
+%----------------------------------------------------------------------------------------------------
+\vspace{10cm}
+\hrule
+
+\lhQ So far, our hand comparisons are correct as long as we compare \emph{High Cards} hands or compare a \emph{High Card} to a \emph{Pair}. What's the next step ?
+\lhA Comparing \emph{Pairs}.
+\lhN Ok. Here's a test:
+\begin{lstlisting}[frame=single]
+,"5♥ 4♦ 3♥ 2♦ 3♣" `beat` "5♥ 2♦ 3♥ 4♦ 2♥"]
+    where beat h g = comparing hand h g ~?= GT
+\end{lstlisting}
+The hand on the left should win, since a pair of 3 beats a pair of 2s. But the test fails, we get \il!EQ! instead of \il!GT!.
+\lhA \failure We can solve this by storing cards along with the \il!Pair! value in the \il!Hand! type:
+\begin{lstlisting}[frame=single]
+data Hand = HighCard [Card]
+          | Pair     [Card]
+            deriving (Ord,Eq)
+\end{lstlisting}
+\lhN And we must complete the \il!hand! function, too.
+\lhA \error Yes:
+\begin{lstlisting}[frame=single]
+hand :: String -> Hand
+hand s = case length gs  of
+           4 -> Pair cs
+           5 -> HighCard cs 
+       where cs = sortBy (flip compare) $ cards s
+             gs = groupBy (same value) cs
+\end{lstlisting} %$
+\success And now the test passes.
+\lhN We have a problem, though. Can you see it ?
+\lhA Not yet.
+\lhN Look at the \il!hand! function. \\ What is the value of \il!cs! when \il!s! equals \il!"5♥ 4♦ 3♥ 2♦ 3♣"!?
+\lhA That's \il![5, 4, 3, 3, 2]!.
+\lhN And what would be the value of \il!cs! if \il!s! was equal to  \il!"5♥ 2♦ 3♥ 7♦ 2♦"!?
+\lhA \il![7,5,3,2,2]!. Ouch.
+\lhN Let's write a new test:
+\begin{lstlisting}[frame=single]
+    ,"5♥ 4♦ 3♥ 3♣ 2♥" `beat` "7♦ 5♥ 3♦ 2♠ 2♦"]
+\end{lstlisting}
+\failure and sure enough the test is failing.
+\lhA \failure I see. The value of the pair should beat the value of the remaining cards.
+\lhN Do you know how to solve this?
+\lhA No. 
+\lhN What is the simplest possible thing that would make the tests pass ?
+\lhA Using the \emph{fake it} strategy. We can arrange the cards according to their place in the groups list.
+\lhN Well, do this, then.
+\lhA I want to refactor the code, first. 
+\lhN Ok I'm removing my last test
+\lhA \success Thanks. Here's my refactoring:
+\begin{lstlisting}[frame=single]
+hand :: String -> Hand
+hand s = case gs  of
+           [_,_,_,_]   -> Pair cs
+           [_,_,_,_,_] -> HighCard cs 
+       where cs = sortBy (flip compare) $ cards s
+             gs = groupBy (same value) cs
+\end{lstlisting} %$
+\success Everything is still working fine.
+\lhN What's the use of these patterns ?
+\lhA \success Describing the two cases of \emph{Pair} that we have so far:
+\begin{lstlisting}[frame=single]
+hand :: String -> Hand
+hand s = case gs  of
+           [[a],[b],[c],[d,e]] -> Pair cs
+           [[a],[b],[c,d],[e]] -> Pair cs
+           [_,_,_,_,_] -> HighCard cs 
+       where cs = sortBy (flip compare) $ cards s
+             gs = groupBy (same value) cs
+\end{lstlisting} %$
+\success Please put your last test back in the code.
+\lhN Here it is :
+\begin{lstlisting}[frame=single]
+    ,"5♥ 4♦ 3♥ 3♣ 2♥" `beat` "7♦ 5♥ 3♦ 2♠ 2♦"]
+\end{lstlisting}
+\failure Still failing.
+\lhA \failure Those variables will be used to rearrange the \il!Pair! value. 
+\begin{lstlisting}[frame=single]
+hand :: String -> Hand
+hand s = case gs  of
+           [[a],[b],[c],[d,e]] -> Pair [d,e,a,b,c]
+           [[a],[b],[c,d],[e]] -> Pair [c,d,a,b,e]
+           [_,_,_,_,_] -> HighCard cs 
+       where cs = sortBy (flip compare) $ cards s
+             gs = groupBy (same value) cs
+\end{lstlisting} %$
+\success And now the pairs are correctly compared.
+\lhN Ok. What if we have pairs on the highest values ? It wouldn't match our two patterns. 
+\lhA I told you it was a \emph{fake}. Everything would be fine if we always one pattern for pairs: \il![[a,b],[c],[d],[e]]!
+\lhN How can we ensure we always have this pattern for pairs?
+\lhA By sorting the groups by size, descending:
+\begin{lstlisting}[frame=single]
+hand :: String -> Hand
+hand s = case gs  of
+           [[a],[b],[c],[d,e]] -> Pair [d,e,a,b,c]
+           [[a],[b],[c,d],[e]] -> Pair [c,d,a,b,e]
+           [_,_,_,_,_] -> HighCard cs 
+       where cs = sortBy (flip compare) $ cards s
+             gs = sortBy (flip groupSize) $ groupBy (same value) cs
+             groupSize  = comparing length 
+\end{lstlisting}
+\failure Now we have errors.
+\lhN That's because we now have non-exhaustive patterns in our three last tests.
+\lhA \failure Of course. Let's put the only remaining possible pair pattern:
+\begin{lstlisting}[frame=single]
+hand :: String -> Hand
+hand s = case gs  of
+           [[a,b],[c],[d],[e]] -> Pair [a,b,c,d,e]
+           [_,_,_,_,_] -> HighCard cs 
+       where cs = sortBy (flip compare) $ cards s
+             gs = sortBy (flip groupSize) $ groupBy (same value) cs
+             groupSize  = comparing length 
+\end{lstlisting}
+\success And everything is fine again.
+\lhend
+
+
