@@ -1,0 +1,82 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{longtable,geometry}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[babel]{csquotes}
+\usepackage{multicol}
+\usepackage{eurosym}
+\MakeAutoQuote{«}{»}
+\pagestyle{headings}
+\geometry{dvips,a4paper,margin=1.5in}
+
+\usepackage[usenames]{color}
+\usepackage{amssymb,amsmath} 
+\usepackage{listings}
+\usepackage{verbatim}
+\usepackage{moreverb}
+\usepackage{txfonts}
+\addtolength{\hoffset}{-1.5cm}
+\addtolength{\voffset}{-1.5cm}
+\addtolength{\textwidth}{3cm}
+\addtolength{\textheight}{3cm}
+\title{Trial Run}
+\author{by ToF}
+\input{LittleHaskeller.tex}
+
+\begin{document}
+\lstset{ 
+        language=Haskell,
+	basicstyle=\color{black}\sffamily,
+	columns=fullflexible,
+	tabsize=4,
+	tab=$\to$,
+	literate={->}{$\to$ }2 {>=}{$\geq$}1 {==>}{$\Longrightarrow$}1 {lll}{$\lambda$}1 {__}{\space}1,
+	numberstyle=\tiny,
+	float=tbph,
+	extendedchars,
+	breaklines,
+	frame=none,
+	showtabs=false,
+	showspaces=false,
+	showstringspaces=false,
+	keywordstyle=\color{blue},
+	identifierstyle=\color{black}\textsl,
+	morekeywords={subsequences, comparing, Card},
+	stringstyle=\color{darkgreen},
+	commentstyle=\color{red},
+	captionpos=b,
+	aboveskip=\bigskipamount,
+	belowskip=\bigskipamount}
+
+\setlength{\columnsep}{1cm}	
+
+\parindent = 0cm
+\maketitle
+\troislambdas
+
+\vspace{9cm}
+\hrule
+\lhright Are you there ?
+\lhleft Yes.
+\lhnext Do you see rules between questions ?
+\lhleft Yes.
+\lhnext Can we write snippets of \il!Haskell -> Code! ?
+\lhleft Seems so.
+\lhnext Can we write bigger blocks like this one:
+\begin{lstlisting}[frame=single]
+module Main where
+putStrLn "Hello, World!"
+\end{lstlisting}
+\hspace*{\fill} 
+\lhleft Yes indeed.
+\lhnext Do we have the test status coloured bullets ?
+\lhleft Let me check: \error checked \failure checked \success checked \\
+Yes we have.
+\lhnext Good! Then can we go on ?
+\lhleft Let's go!
+\lhend
+%**************************************************************************************************
+\end{document}
+
+
