@@ -8,6 +8,9 @@ data Card = C { value :: Value, suit :: Suit }
 type Value = Int
 type Suit = Char
 
+data Hand = HighCard [Card]
+          | Pair  deriving (Ord,Eq)
+
 card :: String -> Card
 card [v,s] = C (toValue v) s
     where 
@@ -19,14 +22,17 @@ card [v,s] = C (toValue v) s
       toValue  c  = ((ord c) - (ord '0'))
 
 flush :: [Card] -> Bool
-flush (c:cs) = all (\x -> suit x == suit c) cs
+flush (c:cs) = all (same suit c) cs
 
-data Hand = HighCard [Card]
-          | Pair  deriving (Ord,Eq)
+same :: (Eq a) => (t -> a) -> t -> t -> Bool
+same f a b = f a == f b
 
 hand :: String -> Hand
-hand "5♥ 4♦ 3♥ 2♦ 2♥" = Pair 
-hand s = HighCard $ sortBy (flip compare) $ cards s
+hand s = case length gs  of
+           4 -> Pair
+           5 -> HighCard cs 
+       where cs = sortBy (flip compare) $ cards s
+             gs = groupBy (same value) cs
 
 cards :: String -> [Card]
 cards = map card . words 

@@ -382,10 +382,10 @@ type Suit = Char
 
 data Hand = HighCard [Card] | Pair  deriving (Ord,Eq)
 \end{lstlisting}
-\newpage
-\lhN What about the functions ?
-\lhA Here they are:
-\begin{lstlisting}[frame=single]
+\lhN 
+\hspace*{\fill}
+\lhA And the functions:
+
 card :: String -> Card
 card [v,s] = C (toValue v) s
     where 
@@ -411,9 +411,11 @@ hand s = case length gs  of
 
 cards :: String -> [Card]
 cards = map card . words 
-\end{lstlisting} % $
+\end{lstlisting}
 \lhN What should we do now ?
 \lhA Have some rest!
 \lhend
 
 
+
+\bye
