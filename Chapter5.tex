@@ -103,7 +103,7 @@ hand s = case gs  of
 \end{lstlisting}
 \failure Now we have errors.
 \lhN That's because we now have non-exhaustive patterns in our three last tests.
-\lhA \failure Of course. Let's put the only remaining possible pair pattern:
+\lhA \failure Let's replace the previous pair patterns with the only remaining possible one:
 \begin{lstlisting}[frame=single]
 hand :: String -> Hand
 hand s = case gs  of
@@ -113,7 +113,60 @@ hand s = case gs  of
              gs = sortBy (flip groupSize) $ groupBy (same value) cs
              groupSize  = comparing length 
 \end{lstlisting}
-\success And everything is fine again.
+\success And we're back to green.
+\lhN How can we make this code more legible ?
+\lhA We can put some symmetry into the patterns:
+\begin{lstlisting}[frame=single]
+hand :: String -> Hand
+hand s = case gs  of
+           [[a,b],[c],[d],[e]]  -> Pair [a,b,c,d,e]
+           [[a],[b],[c],[d],[e]]-> HighCard [a,b,c,d,e] 
+    where cs = sortBy (flip compare) $ cards s
+          gs = sortBy (flip groupSize) $ groupBy (same value) cs
+          groupSize  = comparing length 
+\end{lstlisting}
+\lhN The function is quite long; can you split it into two parts, one for grouping the cards, the other for the finding the ranking ?
+\lhA \success Sure:
+\begin{lstlisting}[frame=single]
+hand :: String -> Hand
+hand s = ranking gs
+    where cs = sortBy (flip compare) $ cards s
+          gs = sortBy (flip groupSize) $ groupBy (same value) cs
+          groupSize  = comparing length 
+
+ranking :: [[Card]] -> Hand
+ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
+ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
+\end{lstlisting}
+\success Done.
+\lhN Then, write a clearer version of \il!hand!.
+\lhA Here we go:
+\begin{lstlisting}[frame=single]
+hand :: String -> Hand
+hand = ranking .
+       sortBy (flip (comparing length)) .
+       groupBy (same value) .
+       sortBy (flip compare) .
+       cards
+
+ranking :: [[Card]] -> Hand
+ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
+ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
+\end{lstlisting}
+\success Done.
+\lhN Can you clarify \il!sortBy (flip ..!?
+\lhA Yes:
+\begin{lstlisting}[frame=single]
+hand :: String -> Hand
+hand = ranking . rSortBy (comparing length) .
+       groupBy (same value) . rSort . cards
+
+rSortBy :: (Ord a) => (a -> a -> Ordering) -> [a] -> [a]
+rSortBy f = sortBy (flip f)
+
+rSort :: (Ord a) => [a] -> [a]
+rSort = rSortBy compare
+\end{lstlisting}
 \lhend
 
 

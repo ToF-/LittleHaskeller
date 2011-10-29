@@ -30,12 +30,18 @@ flush :: [Card] -> Bool
 flush (c:cs) = all (same suit c) cs
 
 hand :: String -> Hand
-hand s = case gs  of
-           [[a,b],[c],[d],[e]] -> Pair [a,b,c,d,e]
-           [_,_,_,_,_] -> HighCard cs 
-       where cs = sortBy (flip compare) $ cards s
-             gs = sortBy (flip groupSize) $ groupBy (same value) cs
-             groupSize  = comparing length 
+hand = ranking . rSortBy (comparing length) .
+       groupBy (same value) . rSort . cards
+
+rSortBy :: (Ord a) => (a -> a -> Ordering) -> [a] -> [a]
+rSortBy f = sortBy (flip f)
+
+rSort :: (Ord a) => [a] -> [a]
+rSort = rSortBy compare
+
+ranking :: [[Card]] -> Hand
+ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
+ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
 
 cards :: String -> [Card]
 cards = map card . words 
