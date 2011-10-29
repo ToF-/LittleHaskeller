@@ -1,11 +1,11 @@
 \newpage
 %----------------------------------------------------------------------------------------------------
-\section{Comparing Pairs} 
+\section{Grouping Cards} 
 %----------------------------------------------------------------------------------------------------
 \vspace{10cm}
 \hrule
 
-\lhQ So far, our hand comparisons are correct as long as we compare \emph{High Cards} hands or compare a \emph{High Card} to a \emph{Pair}. What's the next step ?
+\lhQ So far, our hand comparisons are correct as long as we compare \emph{High Cards} hands or compare a \emph{High Card} to a \emph{Pair}. What's the next step?
 \lhA Comparing \emph{Pairs}.
 \lhN Ok. Here's a test:
 \begin{lstlisting}[frame=single]
@@ -30,7 +30,7 @@ hand s = case length gs  of
              gs = groupBy (same value) cs
 \end{lstlisting} %$
 \success And now the test passes.
-\lhN We have a problem, though. Can you see it ?
+\lhN We have a problem, though. Can you see it?
 \lhA Not yet.
 \lhN Look at the \il!hand! function. \\ What is the value of \il!cs! when \il!s! equals \il!"5♥ 4♦ 3♥ 2♦ 3♣"!?
 \lhA That's \il![5, 4, 3, 3, 2]!.
@@ -44,7 +44,7 @@ hand s = case length gs  of
 \lhA \failure I see. The value of the pair should beat the value of the remaining cards.
 \lhN Do you know how to solve this?
 \lhA No. 
-\lhN What is the simplest possible thing that would make the tests pass ?
+\lhN What is the simplest possible thing that would make the tests pass?
 \lhA Using the \emph{fake it} strategy. We can arrange the cards according to their place in the groups list.
 \lhN Well, do this, then.
 \lhA I want to refactor the code, first. 
@@ -59,7 +59,7 @@ hand s = case gs  of
              gs = groupBy (same value) cs
 \end{lstlisting} %$
 \success Everything is still working fine.
-\lhN What's the use of these patterns ?
+\lhN What's the use of these patterns?
 \lhA \success Describing the two cases of \emph{Pair} that we have so far:
 \begin{lstlisting}[frame=single]
 hand :: String -> Hand
@@ -76,7 +76,7 @@ hand s = case gs  of
     ,"5♥ 4♦ 3♥ 3♣ 2♥" `beat` "7♦ 5♥ 3♦ 2♠ 2♦"]
 \end{lstlisting}
 \failure Still failing.
-\lhA \failure Those variables will be used to rearrange the \il!Pair! value. 
+\lhA \failure The \il!a,b,c,d,e! variables will be used to rearrange the \il!Pair! value. 
 \begin{lstlisting}[frame=single]
 hand :: String -> Hand
 hand s = case gs  of
@@ -87,10 +87,10 @@ hand s = case gs  of
              gs = groupBy (same value) cs
 \end{lstlisting} %$
 \success And now the pairs are correctly compared.
-\lhN Ok. What if we have pairs on the highest values ? It wouldn't match our two patterns. 
-\lhA I told you it was a \emph{fake}. Everything would be fine if we always one pattern for pairs: \il![[a,b],[c],[d],[e]]!
+\lhN Ok. What if we have pairs on the highest values? It wouldn't match our two patterns. 
+\lhA I told you it was a \emph{fake}. In fact, comparing pairs would always work if we had only one pattern for pairs: \il![[a,b],[c],[d],[e]]!
 \lhN How can we ensure we always have this pattern for pairs?
-\lhA By sorting the groups by size, descending:
+\lhA By sorting the groups by size, in reverse order:
 \begin{lstlisting}[frame=single]
 hand :: String -> Hand
 hand s = case gs  of
@@ -101,8 +101,8 @@ hand s = case gs  of
              gs = sortBy (flip groupSize) $ groupBy (same value) cs
              groupSize  = comparing length 
 \end{lstlisting}
-\failure Now we have errors.
-\lhN That's because we now have non-exhaustive patterns in our three last tests.
+\failure That's what the \il!sortBy (flip groupSize)! does. But we're still in red.
+\lhN Yes, we now have non-exhaustive patterns in our three last tests.
 \lhA \failure Let's replace the previous pair patterns with the only remaining possible one:
 \begin{lstlisting}[frame=single]
 hand :: String -> Hand
@@ -114,7 +114,7 @@ hand s = case gs  of
              groupSize  = comparing length 
 \end{lstlisting}
 \success And we're back to green.
-\lhN How can we make this code more legible ?
+\lhN How can we make this code more legible?
 \lhA We can put some symmetry into the patterns:
 \begin{lstlisting}[frame=single]
 hand :: String -> Hand
@@ -125,7 +125,7 @@ hand s = case gs  of
           gs = sortBy (flip groupSize) $ groupBy (same value) cs
           groupSize  = comparing length 
 \end{lstlisting}
-\lhN The function is quite long; can you split it into two parts, one for grouping the cards, the other for the finding the ranking ?
+\lhN The function is quite long; can you split it into two parts, one for grouping cards, one for finding the ranking?
 \lhA \success Sure:
 \begin{lstlisting}[frame=single]
 hand :: String -> Hand
@@ -154,19 +154,172 @@ ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
 \end{lstlisting}
 \success Done.
-\lhN Can you clarify \il!sortBy (flip ..!?
-\lhA Yes:
+\lhN The \il!sortBy (flip (..))! construct is a bit complicated. Can you make the code more legible?
+\lhA Yes. 
 \begin{lstlisting}[frame=single]
 hand :: String -> Hand
-hand = ranking . rSortBy (comparing length) .
-       groupBy (same value) . rSort . cards
+hand = ranking . 
+       rSortBy (comparing length) .
+       groupBy (same value) . 
+       rSortBy (comparing value) . cards
+
+rSortBy :: (Ord a) => (a -> a -> Ordering) -> [a] -> [a]
+rSortBy f = sortBy (flip f)
+\end{lstlisting}
+\success For \il!Card!s, \il!compare! and \il!comparing value! are equivalent, so we can use the latter form for symmetry.
+\lhN The function we use for ranking is quite powerful. How easily do you think it could handle new rankings?
+\lhA Write a new test, and we will see.
+\lhN Allright. Here's a test saying that the lowest \emph{Three of a Kind} can beat the highest possible \emph{Pair}.
+\begin{lstlisting}[frame=single]
+       ,"2♦ 2♣ 2♠ 3♥ 4♦" `beat` "A♥ A♠ K♣ Q♦ J♠"]
+\end{lstlisting}
+This test is in error with the following message: \\
+\begin{small}
+\begin{verbatim}
+non-exhaustive pattern in function ranking
+\end{verbatim}
+\end{small}
+Can you make it pass?
+\hspace*{\fill}
+\lhA \error Let's begin by adding the pattern for \emph{Three of a Kind}:
+\begin{lstlisting}[frame=single]
+ranking :: [[Card]] -> Hand
+ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
+ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
+\end{lstlisting}
+\error We're not done yet.
+\lhN Here's what the error message says: \\
+\begin{small}
+\begin{verbatim}
+Not in scope: data constructor `ThreeOfAKind'
+\end{verbatim}
+\end{small}
+\hspace*{\fill}
+\lhA Let's insert the constructor into the \il!Hand! type:
+\begin{lstlisting}[frame=single]
+data Hand = HighCard [Card]
+          | Pair     [Card]
+          | ThreeOfAKind [Card]
+            deriving (Ord,Eq)
+\end{lstlisting}
+\success And now we can detect and compare \emph{Three of a Kind} hands. 
+\lhN Great. What other ranking can we add that would use different group patterns?
+\lhA Let's go for \emph{Full House} and \emph{Four of a Kind}.
+\lhN What about \emph{Straight} and \emph{Flush}?
+\lhA There's no new grouping involved in those. We can add them later.
+\lhN Ok. Here's a test:
+\begin{lstlisting}[frame=single]
+       ,"2♦ 2♠ 2♥ 2♣ 3♦" `beat` "A♥ A♦ A♠ K♥ K♠"]
+\end{lstlisting}
+It states that the lowest \emph{Four of a Kind} beats the highest \emph{Full House}.
+\lhA \error Let's begin with adding the constructors:
+\begin{lstlisting}[frame=single]
+data Hand = HighCard [Card]
+          | Pair     [Card]
+          | ThreeOfAKind [Card]
+          | FullHouse [Card]
+          | FourOfAKind [Card]
+            deriving (Ord,Eq)
+\end{lstlisting}
+\error Then we add the group patterns:
+\begin{lstlisting}[frame=single]
+ranking :: [[Card]] -> Hand
+ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
+ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
+ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
+ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
+\end{lstlisting}
+\success And it's done.
+\lhN Great. Here's the test code so far:
+\begin{lstlisting}[frame=single]
+module Tests
+where 
+import Test.HUnit
+import PokerHand
+import Data.Ord (comparing)
+import Data.List (sort,sortBy)
+
+ud = words "A♣ 2♣ T♣ K♣ 9♣ Q♣ J♣"
+sd = words "2♣ 9♣ T♣ J♣ Q♣ K♣ A♣"
+
+main = runTestTT $ TestList 
+       [sortBy (comparing card) ud  ~?= sd
+       ,map suit (cards "A♣ A♦ A♥ A♠") ~?= ['♣','♦','♥','♠']
+       ,flush (cards "A♣ T♣ 3♣ 4♣ 2♣") ~?= True
+       ,flush (cards "A♠ T♣ 3♣ 4♣ 2♣") ~?= False
+       ,flush (cards "A♠ T♠ 3♠ 4♠ 2♠") ~?= True
+       ,"6♣ 4♦ A♣ 3♠ K♠" `beat` "8♥ J♥ 7♦ 5♥ 6♣"
+       ,"5♥ 2♦ 3♥ 4♦ 2♥" `beat` "A♥ K♥ Q♦ J♦ T♥"
+       ,"5♥ 4♦ 3♥ 2♦ 3♣" `beat` "A♥ K♥ Q♦ J♦ T♥"
+       ,"5♥ 4♦ 3♥ 3♣ 2♥" `beat` "7♦ 5♥ 3♦ 2♠ 2♦"
+       ,"2♦ 2♣ 2♠ 3♥ 4♦" `beat` "A♥ A♠ K♣ Q♦ J♠"
+       ,"2♦ 2♠ 2♥ 2♣ 3♦" `beat` "A♥ A♦ A♠ K♥ K♠"]
+    where beat h g = comparing hand h g ~?= GT
+\end{lstlisting} %$
+\hspace*{\fill}
+\lhA And here's the tested code:
+\begin{lstlisting}[frame=single]
+module PokerHand
+where
+import Char
+import Data.Ord
+import Data.List
+
+data Card = C { value :: Value, suit :: Suit } 
+            deriving (Ord,Eq)
+type Value = Int
+type Suit = Char
+
+data Hand = HighCard [Card]
+          | Pair     [Card]
+          | ThreeOfAKind [Card]
+          | FullHouse [Card]
+          | FourOfAKind [Card]
+            deriving (Ord,Eq)
+
+card :: String -> Card
+card [v,s] = C (toValue v) s
+    where 
+      toValue 'A' = 14
+      toValue 'K' = 13
+      toValue 'Q' = 12
+      toValue 'J' = 11
+      toValue 'T' = 10
+      toValue  c  = ((ord c) - (ord '0'))
+\end{lstlisting}
+\lhN
+\hspace*{\fill}
+\lhA
+\begin{lstlisting}[frame=single]
+same :: (Eq a) => (t -> a) -> t -> t -> Bool
+same f a b = f a == f b
+
+flush :: [Card] -> Bool
+flush (c:cs) = all (same suit c) cs
+
+hand :: String -> Hand
+hand = ranking . 
+       rSortBy (comparing length) .
+       groupBy (same value) . 
+       rSortBy (comparing value) . cards
 
 rSortBy :: (Ord a) => (a -> a -> Ordering) -> [a] -> [a]
 rSortBy f = sortBy (flip f)
 
-rSort :: (Ord a) => [a] -> [a]
-rSort = rSortBy compare
+ranking :: [[Card]] -> Hand
+ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
+ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
+ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
+ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
+
+cards :: String -> [Card]
+cards = map card . words 
 \end{lstlisting}
+\lhN Now is a good time to pause.
+\lhA I'll have a \emph{croque monsieur} with salad.
 \lhend
 
 

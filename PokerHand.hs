@@ -11,6 +11,9 @@ type Suit = Char
 
 data Hand = HighCard [Card]
           | Pair     [Card]
+          | ThreeOfAKind [Card]
+          | FullHouse [Card]
+          | FourOfAKind [Card]
             deriving (Ord,Eq)
 
 card :: String -> Card
@@ -30,16 +33,18 @@ flush :: [Card] -> Bool
 flush (c:cs) = all (same suit c) cs
 
 hand :: String -> Hand
-hand = ranking . rSortBy (comparing length) .
-       groupBy (same value) . rSort . cards
+hand = ranking . 
+       rSortBy (comparing length) .
+       groupBy (same value) . 
+       rSortBy (comparing value) . cards
 
 rSortBy :: (Ord a) => (a -> a -> Ordering) -> [a] -> [a]
 rSortBy f = sortBy (flip f)
 
-rSort :: (Ord a) => [a] -> [a]
-rSort = rSortBy compare
-
 ranking :: [[Card]] -> Hand
+ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
+ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
+ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
 ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
 
