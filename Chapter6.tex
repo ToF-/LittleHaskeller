@@ -7,7 +7,7 @@
 
 \lhQ So far, our \il!hand! function is still not correct with regard to the rules of Poker.
 \lhA Agreed. At least three rankings are missing.
-\lhN What are they ?
+\lhN What are they?
 \lhA The \emph{Straight}, the \emph{Flush}, and the \emph{Straight Flush}.
 \lhN What about the \emph{Royal Flush}?
 \lhA It's another name for the highest \emph{Straight Flush}.
@@ -28,9 +28,9 @@ data Hand = HighCard [Card]
           | FourOfAKind [Card]
             deriving (Ord,Eq)
 \end{lstlisting}
-\error then completing the \il!hand! function.
+\failure then completing the \il!hand! function.
 \lhN Do you know how to recognize a \il!Straight!?
-\lhA \error Yes: it's like a \il!HighCard!, meaning that every value is distinct, but the values are in sequence, meaning that the highest value minus the lowest should equal 4. I'll add this criteria as guard:
+\lhA \failure Yes: it's like a \il!HighCard!, meaning that every value is distinct, but the values are in sequence, meaning that the highest value minus the lowest should equal 4. I'll add this criteria as guard:
 \lhN Go on.
 \lhA
 \begin{lstlisting}[frame=single]
@@ -48,7 +48,7 @@ ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e]
 \begin{lstlisting}[frame=single]
        ,"5♠ 4♦ 3♣ 2♦ A♥" `beat` "A♣ A♥ A♦ K♣ Q♠"]
 \end{lstlisting}
-\failure The test fails. Can you make it pass ?
+\failure The test fails. Can you make it pass?
 \lhA \failure Yes, we just have to add the same pattern with a new guard for the case where the highest card is an ace and the next one is a five:
 \begin{lstlisting}[frame=single]
 ranking :: [[Card]] -> Hand
@@ -62,6 +62,342 @@ ranking [[a],[b],[c],[d],[e]]
     | value a == 14 && value b == 5 = Straight [b,c,d,e,a] 
 ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
 \end{lstlisting}
-\success Note that I order the cards in the value differently, so that the ace is at the last position. 
+\success Note that I order the cards in the value differently, so that the ace is at the last position when we print it.
+\lhN Ok. Now for the \emph{Flush}. Here is a new test:
+\begin{lstlisting}[frame=single]
+       ,"6♥ 4♥ 3♥ 2♥ A♥" `beat` "A♠ K♣ Q♥ J♠ T♦"]
+\end{lstlisting}
+\failure The lowest \emph{Flush} should beat the highest \emph{Straight}.
+\lhA First, create the value:
+\begin{lstlisting}[frame=single]
+data Hand = HighCard [Card]
+          | Pair     [Card]
+          | ThreeOfAKind [Card]
+          | Straight [Card]
+          | Flush [Card]
+          | FullHouse [Card]
+          | FourOfAKind [Card]
+            deriving (Ord,Eq)
+\end{lstlisting}
+\lhN We already have a function to detect a \emph{Flush}.
+\lhA \failure Yes, I'll just use it within a pattern similar to a \emph{High Card}:
+\begin{lstlisting}[frame=single]
+ranking :: [[Card]] -> Hand
+ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
+ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
+ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
+ranking [[a],[b],[c],[d],[e]] 
+    | value a - value e == 4 = Straight [a,b,c,d,e] 
+ranking [[a],[b],[c],[d],[e]] 
+    | value a == 14 && value b == 5 = Straight [b,c,d,e,a] 
+ranking [[a],[b],[c],[d],[e]] 
+    | flush [a,b,c,d,e] = Flush [a,b,c,d,e] 
+ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
+\end{lstlisting}
+\success And we are done with \emph{Flush}.
+\lhN We now have the \emph{Straight Flush} case. Do you know how to handle it?
+\lhA Yes. Write a test.
+\lhN Here it is. 
+\begin{lstlisting}[frame=single]
+       ,"5♥ 4♥ 3♥ 2♥ A♥" `beat` "A♦ A♠ A♥ A♠ K♥"]
+\end{lstlisting}
+\failure I started with the lowest \emph{Straight Flush}.
+\lhA \failure Ok. I'll create the value, same as usual:
+\begin{lstlisting}[frame=single]
+data Hand = HighCard [Card]
+          | Pair     [Card]
+          | ThreeOfAKind [Card]
+          | Straight [Card]
+          | Flush [Card]
+          | FullHouse [Card]
+          | FourOfAKind [Card]
+          | StraightFlush [Card]
+            deriving (Ord,Eq)
+\end{lstlisting}
+\failure Then I'll add the case:
+\begin{lstlisting}[frame=single]
+ranking :: [[Card]] -> Hand
+ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
+ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
+ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
+ranking [[a],[b],[c],[d],[e]] 
+    | value a - value e == 4 = Straight [a,b,c,d,e] 
+ranking [[a],[b],[c],[d],[e]] 
+    | value a == 14 && value b == 5 && flush [a,b,c,d,e] = StraightFlush [b,c,d,e,a] 
+ranking [[a],[b],[c],[d],[e]] 
+    | value a == 14 && value b == 5 = Straight [b,c,d,e,a] 
+ranking [[a],[b],[c],[d],[e]] 
+    | flush [a,b,c,d,e] = Flush [a,b,c,d,e] 
+ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
+\end{lstlisting}
+\success It works, but it's ugly.
+\lhN Yes. How could you avoid repeating yourself?
+\lhA I don't know.
+\lhN If we add the case for a general \emph{Straight Flush}, it will make things worse.
+\lhA I know.
+\lhN Do you notice something specific about uses of the \il!flush! function?
+\lhA It occurs for only one group pattern: \il![[a],[b],[c],[d],[e]]!.
+\lhN What \il!Hand! values this group pattern produce?
+\lhA \il!HighCard! or \il!Straight!.
+\lhN And what should it produce when the function \il!flush! yields \il!True! for the cards in the groups?
+\lhA \il!Flush! or \il!StraightFlush!.
+\lhN What should be produced for other groups when the function \il!flush! yields \il!True!?
+\lhA That's not possible. There's no two cards of the same value in a flush.
+\lhN Can you draw a table?
+\lhA \begin{tabular}{|l|l|l|}
+  \hline
+  initial hand & \il!flush! & result \\
+  \hline
+  \il!HighCard! & \il!True! & \il!Flush! \\
+  \il!Straight! & \il!True! & \il!StraightFlush! \\
+  \emph{other}  & \il!True! & \emph{impossible} \\
+  \il!HighCard! & \il!False! & \il!HighCard! \\
+  \il!Straight! & \il!False! & \il!Straight! \\
+  \emph{other}  & \il!False! & \emph{unchanged} \\
+   \hline
+\end{tabular}
+\lhN Can you transform this table into a function?
+\lhA Yes:
+\begin{lstlisting}[frame=single]
+promoteFlush :: Hand -> Hand
+promoteFlush (HighCard cs) | flush cs = Flush cs
+promoteFlush (Straight cs) | flush cs = StraightFlush cs
+promoteFlush h = h 
+\end{lstlisting}
+\success if that's what you mean.
+\lhN That's what I mean. Can you use it in the \il!hand! function now?
+\lhA Yes: 
+\begin{lstlisting}[frame=single]
+hand :: String -> Hand
+hand = promoteFlush . ranking . 
+       rSortBy (comparing length) .
+       groupBy (same value) . 
+       rSortBy (comparing value) . cards
+\end{lstlisting}
+\success The code is still working.
+\lhN Now we can get rid of the flush tests in the \il!ranking! function.
+\lhA You are right:
+\begin{lstlisting}[frame=single]
+ranking :: [[Card]] -> Hand
+ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
+ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
+ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
+ranking [[a],[b],[c],[d],[e]]
+    | value a - value e == 4 = Straight [a,b,c,d,e] 
+ranking [[a],[b],[c],[d],[e]] 
+    | value a == 14 && value b == 5 = Straight [b,c,d,e,a] 
+ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
+\end{lstlisting}
+\success Nicely done.
+\lhN And this should also work for the general case of \emph{Straight Flush}, as this test will show:
+\begin{lstlisting}[frame=single]
+       ,"6♥ 5♥ 4♥ 3♥ 2♥" `beat` "A♦ A♠ A♥ A♠ K♥"]
+\end{lstlisting}
+\success Already passing! I think we should keep it, thought.
+\lhA I agree.
+\lhN Can you draw another decision table for detecting the \il!Straight! hand ?
+\lhA Here it is:\\
+\begin{tabular}{|l|l|l|l|}
+  \hline
+  initial hand & \il!a-e == 4! & \il!a==14 && b==5! & result \\
+  \hline
+  \il!HighCard! & True & False & \il!Straight [a,b,c,d,e]! \\
+  \il!HighCard! & False & True & \il!Straight [b,c,d,e,a]! \\
+  \emph{other} &  True & False & \emph{unchanged} \\
+  \emph{other} &  False & True & \emph{unchanged} \\
+   \hline
+\end{tabular}
+\lhN Can you design a function from this table ?
+\lhA
+\begin{lstlisting}[frame=single]
+promoteStraight :: Hand -> Hand
+promoteStraight (HighCard [a,b,c,d,e]) 
+    | value a - value e == 4 = Straight [a,b,c,d,e]
+promoteStraight (HighCard [a,b,c,d,e]) 
+    | value a == 14 &&  value b == 5 = Straight [b,c,d,e,a]
+promoteStraight h = h
+\end{lstlisting}
+\success Done.
+\lhN Then use it in the \il!hand! function ?
+\lhA
+\begin{lstlisting}[frame=single]
+hand :: String -> Hand
+hand = promoteFlush . promoteStraight . ranking . 
+       rSortBy (comparing length) .
+       groupBy (same value) . 
+       rSortBy (comparing value) . cards
+\end{lstlisting}
+\success Done.
+\lhN Then simplify the \il!ranking! function.
+\lhA
+\begin{lstlisting}[frame=single]
+ranking :: [[Card]] -> Hand
+ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
+ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
+ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
+ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
+\end{lstlisting}
+\success Done.
+\lhN How could we make the \il!hand! function more legible?
+\lhA Maybe by stating a step per line:
+\begin{lstlisting}[frame=single]
+hand :: String -> Hand
+hand =   promoteFlush    
+       . promoteStraight
+       . ranking 
+       . rSortBy (comparing length)
+       . groupBy (same value)
+       . rSortBy (comparing value)
+       . cards                     
+\end{lstlisting}
+\success Like this.
+\lhN Maybe writing the steps in reverse order would read more naturally?
+\lhA I'm not sure if we can do that.
+\newpage
+\lhN We can if we reverse the \il!(.)! function. $GHCI$ shows us how to do:
+\begin{small}
+\begin{verbatim}
+> :t (.)
+(.) :: (b -> c) -> (a -> b) -> a -> c
+> :t (flip (.))
+(flip (.)) :: (a -> b) -> (b -> c) -> a -> c
+\end{verbatim}
+\end{small}
+\hspace*{\fill}
+\lhA We need a new operator, then:
+\begin{lstlisting}[frame=single]
+(>>.) :: (a -> b) -> (b -> c) -> (a -> c)
+(>>.) = flip (.)
+\end{lstlisting}
+\lhN That's right.
+\lhA \success And we can apply it to \il!hand!:
+\begin{lstlisting}[frame=single]
+hand :: String -> Hand
+hand =     cards
+       >>. rSortBy (comparing value)
+       >>. groupBy (same value)
+       >>. rSortBy (comparing length)
+       >>. ranking 
+       >>. promoteStraight
+       >>. promoteFlush    
+\end{lstlisting}
+\success Now the code is clearer.
+\lhN Yes. Here's the test code:
+\begin{lstlisting}[frame=single]
+module Tests
+where 
+import Test.HUnit
+import PokerHand
+import Data.Ord (comparing)
+import Data.List (sort,sortBy)
+
+ud = words "A♣ 2♣ T♣ K♣ 9♣ Q♣ J♣"
+sd = words "2♣ 9♣ T♣ J♣ Q♣ K♣ A♣"
+
+main = runTestTT $ TestList 
+       [sortBy (comparing card) ud  ~?= sd
+       ,map suit (cards "A♣ A♦ A♥ A♠") ~?= ['♣','♦','♥','♠']
+       ,flush (cards "A♣ T♣ 3♣ 4♣ 2♣") ~?= True
+       ,flush (cards "A♠ T♣ 3♣ 4♣ 2♣") ~?= False
+       ,flush (cards "A♠ T♠ 3♠ 4♠ 2♠") ~?= True
+       ,"6♣ 4♦ A♣ 3♠ K♠" `beat` "8♥ J♥ 7♦ 5♥ 6♣"
+       ,"5♥ 2♦ 3♥ 4♦ 2♥" `beat` "A♥ K♥ Q♦ J♦ 9♥"
+       ,"5♥ 4♦ 3♥ 2♦ 3♣" `beat` "A♥ K♥ Q♦ J♦ 9♥"
+       ,"5♥ 4♦ 3♥ 3♣ 2♥" `beat` "7♦ 5♥ 3♦ 2♠ 2♦"
+       ,"2♦ 2♣ 2♠ 3♥ 4♦" `beat` "A♥ A♠ K♣ Q♦ J♠"
+       ,"2♦ 2♠ 2♥ 2♣ 3♦" `beat` "A♥ A♦ A♠ K♥ K♠"
+       ,"6♠ 5♦ 4♣ 3♦ 2♥" `beat` "A♣ A♥ A♦ K♣ Q♠"
+       ,"5♠ 4♦ 3♣ 2♦ A♥" `beat` "A♣ A♥ A♦ K♣ Q♠"
+       ,"6♥ 4♥ 3♥ 2♥ A♥" `beat` "A♠ K♣ Q♥ J♠ T♦"
+       ,"5♥ 4♥ 3♥ 2♥ A♥" `beat` "A♦ A♠ A♥ A♠ K♥"
+       ,"6♥ 5♥ 4♥ 3♥ 2♥" `beat` "A♦ A♠ A♥ A♠ K♥"]
+    where beat h g = comparing hand h g ~?= GT
+\end{lstlisting} % $
+\hspace*{\fill}
+\lhA And this is the tested code:
+\begin{lstlisting}[frame=single]
+module PokerHand
+where
+import Char
+import Data.Ord
+import Data.List
+
+data Card = C { value :: Value, suit :: Suit } 
+            deriving (Ord,Eq)
+type Value = Int
+type Suit = Char
+
+data Hand = HighCard [Card]
+          | Pair     [Card]
+          | ThreeOfAKind [Card]
+          | Straight [Card]
+          | Flush [Card]
+          | FullHouse [Card]
+          | FourOfAKind [Card]
+          | StraightFlush [Card]
+            deriving (Ord,Eq)
+
+card :: String -> Card
+card [v,s] = C (toValue v) s
+    where 
+      toValue 'A' = 14
+      toValue 'K' = 13
+      toValue 'Q' = 12
+      toValue 'J' = 11
+      toValue 'T' = 10
+      toValue  c  = ((ord c) - (ord '0'))
+
+same :: (Eq a) => (t -> a) -> t -> t -> Bool
+same f a b = f a == f b
+
+flush :: [Card] -> Bool
+flush (c:cs) = all (same suit c) cs
+\end{lstlisting}
+\lhN
+\hspace*{\fill} 
+\lhA
+\begin{lstlisting}[frame=single]
+rSortBy :: (Ord a) => (a -> a -> Ordering) -> [a] -> [a]
+rSortBy f = sortBy (flip f)
+
+(>>.) :: (a -> b) -> (b -> c) -> (a -> c)
+(>>.) = flip (.)
+
+hand :: String -> Hand
+hand =     cards
+       >>. rSortBy (comparing value)
+       >>. groupBy (same value)
+       >>. rSortBy (comparing length)
+       >>. ranking 
+       >>. promoteStraight
+       >>. promoteFlush    
+
+ranking :: [[Card]] -> Hand
+ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
+ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
+ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
+ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
+
+cards :: String -> [Card]
+cards = map card . words 
+
+promoteStraight :: Hand -> Hand
+promoteStraight (HighCard [a,b,c,d,e]) 
+    | value a - value e == 4 = Straight [a,b,c,d,e]
+promoteStraight (HighCard [a,b,c,d,e]) 
+    | value a == 14 &&  value b == 5 = Straight [b,c,d,e,a]
+promoteStraight h = h
+
+
+promoteFlush :: Hand -> Hand
+promoteFlush (HighCard cs) | flush cs = Flush cs
+promoteFlush (Straight cs) | flush cs = StraightFlush cs
+promoteFlush h = h
+\end{lstlisting}
 \lhend
 
