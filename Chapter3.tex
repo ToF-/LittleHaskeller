@@ -5,7 +5,7 @@
 \vspace{10cm}
 \hrule
 
-\lhQ What is the next task with regard to card comparison ?
+\lhQ What is the next task with regard to card comparison?
 \lhA We need to compare suits so that we can find a \emph{flush}.
 \lhN Ok I'll write a test:
 \begin{lstlisting}[frame=single]
@@ -34,11 +34,11 @@ main = runTestTT $ TestList
        ,flush (cards "A♠ T♣ 3♣ 4♣ 2♣") ~?= False ]
     where cards = map card . words
 \end{lstlisting} % $
-Can you make it pass ?
+Can you make it pass?
 \lhA \failure I don't think so.
-\lhN What is missing ?
+\lhN What is missing?
 \lhA The \il!Card! type doesn't include suits.
-\lhN How can we change that ?
+\lhN How can we change that?
 \lhA Add a failing test on getting \il!Suit!s from \il!Card!s.
 \lhN Ok, then I'll replace my last test with this one:
 \begin{lstlisting}[frame=single]
@@ -48,7 +48,7 @@ main = runTestTT $ TestList
        ,map suit (cards "A♣ A♦ A♣ A♠") ~?= ['♣','♦','♣','♠']]
     where cards = map card . words
 \end{lstlisting} % $
-Can you make this one pass ?  
+Can you make this one pass?  
 \lhA \error First we need a \il!suit! function:
 \begin{lstlisting}[frame=single]
 type Suit = Char
@@ -57,7 +57,7 @@ suit :: Card -> Suit
 suit _ = '♣'
 \end{lstlisting}
 \failure Now the test is failing.
-\lhN What else is needed ?
+\lhN What else is needed?
 \lhA \failure We must store the suit into to the \il!Card! type:
 \begin{lstlisting}[frame=single]
 data Card = C Value Suit deriving (Ord,Eq)
@@ -72,7 +72,7 @@ card ['J',s] = C 11 s
 card ['T',s] = C 10 s
 card [c,s] = C ((ord c) - (ord '0')) s
 \end{lstlisting}
-\lhN \failure The code in the \il!card! function is a bit tedious, don't you think ?
+\lhN \failure The code in the \il!card! function is a bit tedious, don't you think?
 \lhA \failure I'll refactor it when the bar is green. I still have to remove the \emph{fake} on \il!suit!:
 \begin{lstlisting}[frame=single]
 suit :: Card -> Suit
@@ -98,7 +98,7 @@ card [v,s] = C (toValue v) s
       toValue  c  = ((ord c) - (ord '0'))
 \end{lstlisting}
 \success Done.
-\lhN Can I add my test on \il!flush! now ?
+\lhN Can I add my test on \il!flush! now?
 \lhA Yes.
 \lhN Here it is:
 \begin{lstlisting}[frame=single]
@@ -109,7 +109,7 @@ main = runTestTT $ TestList
        ,flush (cards "A♠ T♣ 3♣ 4♣ 2♣") ~?= False]
     where cards = map card . words
 \end{lstlisting} % $
-Do you see how to make it pass ?
+Do you see how to make it pass?
 \lhA \failure Sure: 
 \begin{lstlisting}[frame=single]
 flush :: [Card] -> Bool
@@ -178,6 +178,6 @@ card [v,s] = C (toValue v) s
 flush :: [Card] -> Bool
 flush (c:cs) = all (\x -> suit x == suit c) cs
 \end{lstlisting}
-\lhN Are we done with comparing cards ?
+\lhN Are we done with comparing cards?
 \lhA I think so. Let's have lunch.
 \lhend

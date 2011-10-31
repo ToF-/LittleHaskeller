@@ -135,8 +135,8 @@ hand s = HighCard $ sortBy (flip compare) $ cards s
 \success And the test is passing, because given the declaration of \il!Hand!, \il!Pair! is a higher \il!Hand! value thant \il!HighCard!.
 \lhN Now we need to triangulate, so I'm adding a new test about a \emph{Pair} beating a \emph{High Card}:
 \begin{lstlisting}[frame=single]
-       ,"5♥ 2♦ 3♥ 4♦ 2♥" `beat` "A♥ K♥ Q♦ J♦ T♥"
-       ,"5♥ 4♦ 3♥ 2♦ 3♣" `beat` "A♥ K♥ Q♦ J♦ T♥"]
+       ,"5♥ 2♦ 3♥ 4♦ 2♥" `beat` "A♥ K♥ Q♦ J♦ 9♥"
+       ,"5♥ 4♦ 3♥ 2♦ 3♣" `beat` "A♥ K♥ Q♦ J♦ 9♥"]
 \end{lstlisting}
 \hspace*{\fill}
 \lhA \failure I'll aggravate my \emph{fake} with a new pattern:
@@ -192,7 +192,7 @@ hasAPair _ = False
 \end{lstlisting} % $ 
 \lhN Do you see something common between the first two patterns of \il!hasAPair!?
 \lhA Apart from the fact they both end with \il!3,4,5]!, no.
-\lhN Can you group the values after sorting them ?
+\lhN Can you group the values after sorting them?
 \lhA \success Ok. We have to change the signature for the function.
 \begin{lstlisting}[frame=single]
 hand :: String -> Hand
@@ -207,14 +207,14 @@ hasAPair _ = False
 \success Oh. Now I see something.
 \lhN What do you see?
 \lhA Each list contains four groups. So that would be a way to detect any \emph{Pair}!
-\lhN How would write the function, then ?
+\lhN How would write the function, then?
 \lhA \success Like this:
 \begin{lstlisting}[frame=single]
 hasAPair :: [[Value]] -> Bool
 hasAPair gs = length gs == 4 
 \end{lstlisting}
 \success The code is still quite messy, though.
-\lhN How can we refactor ?
+\lhN How can we refactor?
 \lhA First, factorize parts of the expression, like \il!cards s!   
 \begin{lstlisting}[frame=single]
 hand :: String -> Hand
@@ -239,7 +239,7 @@ hand s = HighCard $ sortBy (flip compare) $ cs
          where cs = cards s
 \end{lstlisting}
 \success Now we can continue to refactor.
-\lhN How can you write only one pattern in this function ?
+\lhN How can you write only one pattern in this function?
 \lhA \success By using an \il!if!:
 \begin{lstlisting}[frame=single]
 hand :: String -> Hand
@@ -257,7 +257,7 @@ hand s = if hasAPair (groups cs) then Pair
              groups = group . sort . map value
              hasAPair gs = length gs == 4 
 \end{lstlisting}
-\lhN In this function, we sort the cards twice. Would the \il!group!ing still work if it used \il!sortBy (flip compare)! instead of \il!sort! ?
+\lhN In this function, we sort the cards twice. Would the \il!group!ing still work if it used \il!sortBy (flip compare)! instead of \il!sort!?
 \lhA \success Let's ask the code:
 \begin{lstlisting}[frame=single]
 hand :: String -> Hand
@@ -301,7 +301,7 @@ hand s = case length gs  of
              gs = group $ map value $ cs
 \end{lstlisting} % $
 \success Yeah, that's a bit clearer.
-\lhN Can you add symmetry ? Using \il!groupBy! instead of \il!group! and \il!map!.
+\lhN Can you add symmetry? Using \il!groupBy! instead of \il!group! and \il!map!.
 \lhA \success Sure:
 \begin{lstlisting}[frame=single]
 hand :: String -> Hand
@@ -313,7 +313,7 @@ hand s = case length gs  of
              same f a b = f a == f b
 \end{lstlisting} % $
 \success That's even clearer.
-\lhN Hey, that \il!same! function is interesting. Do you see where we met a case for it before ?
+\lhN Hey, that \il!same! function is interesting. Do you see where we met a case for it before?
 \lhA No.
 \lhN Look at the \il!flush! function.
 \lhA Here it is:
@@ -363,8 +363,8 @@ main = runTestTT $ TestList
        ,flush (cards "A♠ T♣ 3♣ 4♣ 2♣") ~?= False
        ,flush (cards "A♠ T♠ 3♠ 4♠ 2♠") ~?= True
        ,"6♣ 4♦ A♣ 3♠ K♠" `beat` "8♥ J♥ 7♦ 5♥ 6♣"
-       ,"5♥ 2♦ 3♥ 4♦ 2♥" `beat` "A♥ K♥ Q♦ J♦ T♥"
-       ,"5♥ 4♦ 3♥ 2♦ 3♣" `beat` "A♥ K♥ Q♦ J♦ T♥"]
+       ,"5♥ 2♦ 3♥ 4♦ 2♥" `beat` "A♥ K♥ Q♦ J♦ 9♥"
+       ,"5♥ 4♦ 3♥ 2♦ 3♣" `beat` "A♥ K♥ Q♦ J♦ 9♥"]
     where beat h g = comparing hand h g ~?= GT
 \end{lstlisting} % $
 \hspace*{\fill}
@@ -383,7 +383,7 @@ type Suit = Char
 data Hand = HighCard [Card] | Pair  deriving (Ord,Eq)
 \end{lstlisting}
 \newpage
-\lhN What about the functions ?
+\lhN What about the functions?
 \lhA Here they are:
 \begin{lstlisting}[frame=single]
 card :: String -> Card
@@ -412,7 +412,7 @@ hand s = case length gs  of
 cards :: String -> [Card]
 cards = map card . words 
 \end{lstlisting} % $
-\lhN What should we do now ?
+\lhN What should we do now?
 \lhA Have some rest!
 \lhend
 

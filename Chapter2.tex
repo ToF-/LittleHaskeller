@@ -53,7 +53,7 @@ accompanying binding
 Not in scope: type constructor or class `Card'
 \end{alltt}
 \end{small}
-Can you write provide the missing parts ?
+Can you write provide the missing parts?
 \lhA \error OK, this is the \il!Card! type:
 \begin{lstlisting}[frame=single]
 data Card = C 
@@ -251,7 +251,7 @@ Should we follow the suggestion?
 \lhA \error No. I don't think the \il!Card! type should derive the \il!Show! class just for testing reasons.
 \lhN Then should we get back to the previous version of our tests?
 \lhA I have a better idea: instead of comparing lists of \il!Card!s we can compare lists of \il!String!s.
-\lhN \error Comparing the \il!String!s ? Ok:
+\lhN \error Comparing the \il!String!s? Ok:
 \begin{lstlisting}[frame=single]
 ud = ["A♣","2♣","T♣","K♣","9♣","Q♣","J♣"]
 sd = ["2♣","9♣","T♣","J♣","Q♣","K♣","A♣"]
