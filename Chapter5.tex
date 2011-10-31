@@ -169,9 +169,9 @@ rSortBy f = sortBy (flip f)
 \success For \il!Card!s, \il!compare! and \il!comparing value! are equivalent, so we can use the latter form for symmetry.
 \lhN The function we use for ranking is quite powerful. How easily do you think it could handle new rankings?
 \lhA Write a new test, and we will see.
-\lhN Allright. Here's a test saying that the lowest \emph{Three of a Kind} can beat the highest possible \emph{Pair}.
+\lhN Allright. Here's a test saying that the lowest \emph{Tow Pairs} can beat the highest possible \emph{Pair}.
 \begin{lstlisting}[frame=single]
-       ,"2♦ 2♣ 2♠ 3♥ 4♦" `beat` "A♥ A♠ K♣ Q♦ J♠"]
+       ,"2♦ 2♣ 3♣ 3♠ 4♥" `beat` "A♥ A♠ K♣ Q♦ J♠"]
 \end{lstlisting}
 This test is in error with the following message: \\
 \begin{small}
@@ -184,7 +184,7 @@ Can you make it pass?
 \lhA \error Let's begin by adding the pattern for \emph{Three of a Kind}:
 \begin{lstlisting}[frame=single]
 ranking :: [[Card]] -> Hand
-ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c,d],[e]]     = TwoPairs [a,b,c,d,e]
 ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
 \end{lstlisting}
@@ -192,7 +192,7 @@ ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e]
 \lhN Here's what the error message says: \\
 \begin{small}
 \begin{verbatim}
-Not in scope: data constructor `ThreeOfAKind'
+Not in scope: data constructor `TwoPairs
 \end{verbatim}
 \end{small}
 \hspace*{\fill}
@@ -200,10 +200,46 @@ Not in scope: data constructor `ThreeOfAKind'
 \begin{lstlisting}[frame=single]
 data Hand = HighCard [Card]
           | Pair     [Card]
+          | TwoPairs [Card]
+            deriving (Ord,Eq)
+\end{lstlisting}
+\success And now we can detect and compare \emph{Two Pairs} hands. 
+\lhN Good.. Now, here's a test saying that the lowest \emph{Three of a Kind} can beat the highest possible \emph{Two Pairs}.
+\begin{lstlisting}[frame=single]
+       ,"2♦ 2♣ 2♠ 3♥ 4♦" `beat` "A♥ A♠ K♣ K♦ J♠"]
+\end{lstlisting}
+The fails with a message similar to the previous one: \\
+\begin{small}
+\begin{verbatim}
+non-exhaustive pattern in function ranking
+\end{verbatim}
+\end{small}
+\hspace*{\fill}
+\lhA \error Let's add the pattern for \emph{Three of a Kind}:
+\begin{lstlisting}[frame=single]
+ranking :: [[Card]] -> Hand
+ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c,d],[e]]     = TwoPairs [a,b,c,d,e]
+ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
+ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
+\end{lstlisting}
+\error And you should have a new message.
+\lhN Exactly: \\
+\begin{small}
+\begin{verbatim}
+Not in scope: data constructor `ThreeOfAKind'
+\end{verbatim}
+\end{small}
+\hspace*{\fill}
+\lhA Here I go:
+\begin{lstlisting}[frame=single]
+data Hand = HighCard [Card]
+          | Pair     [Card]
+          | TwoPairs [Card]
           | ThreeOfAKind [Card]
             deriving (Ord,Eq)
 \end{lstlisting}
-\success And now we can detect and compare \emph{Three of a Kind} hands. 
+\success And now we can also detect and compare \emph{Three of a Kind} hands. 
 \lhN Great. What other ranking can we add that would use different group patterns?
 \lhA Let's go for \emph{Full House} and \emph{Four of a Kind}.
 \lhN What about \emph{Straight} and \emph{Flush}?
@@ -213,25 +249,30 @@ data Hand = HighCard [Card]
        ,"2♦ 2♠ 2♥ 2♣ 3♦" `beat` "A♥ A♦ A♠ K♥ K♠"]
 \end{lstlisting}
 It states that the lowest \emph{Four of a Kind} beats the highest \emph{Full House}.
+\hspace*{\fill}
 \lhA \error Let's begin with adding the constructors:
 \begin{lstlisting}[frame=single]
 data Hand = HighCard [Card]
           | Pair     [Card]
+          | TwoPairs [Card]
           | ThreeOfAKind [Card]
           | FullHouse [Card]
           | FourOfAKind [Card]
             deriving (Ord,Eq)
 \end{lstlisting}
-\error Then we add the group patterns:
+\lhN Good.
+\lhA \error Then we add the group patterns:
 \begin{lstlisting}[frame=single]
 ranking :: [[Card]] -> Hand
 ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
 ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
 ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c,d],[e]]     = TwoPairs [a,b,c,d,e]
 ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
 \end{lstlisting}
 \success And it's done.
+\newpage
 \lhN Great. Here's the test code so far:
 \begin{lstlisting}[frame=single]
 module Tests
@@ -254,7 +295,8 @@ main = runTestTT $ TestList
        ,"5♥ 2♦ 3♥ 4♦ 2♥" `beat` "A♥ K♥ Q♦ J♦ 9♥"
        ,"5♥ 4♦ 3♥ 2♦ 3♣" `beat` "A♥ K♥ Q♦ J♦ 9♥"
        ,"5♥ 4♦ 3♥ 3♣ 2♥" `beat` "7♦ 5♥ 3♦ 2♠ 2♦"
-       ,"2♦ 2♣ 2♠ 3♥ 4♦" `beat` "A♥ A♠ K♣ Q♦ J♠"
+       ,"2♦ 2♣ 3♣ 3♠ 4♥" `beat` "A♥ A♠ K♣ Q♦ J♠"  
+       ,"2♦ 2♣ 2♠ 3♥ 4♦" `beat` "A♥ A♠ K♣ K♦ J♠"
        ,"2♦ 2♠ 2♥ 2♣ 3♦" `beat` "A♥ A♦ A♠ K♥ K♠"]
     where beat h g = comparing hand h g ~?= GT
 \end{lstlisting} %$
@@ -274,6 +316,7 @@ type Suit = Char
 
 data Hand = HighCard [Card]
           | Pair     [Card]
+          | TwoPairs [Card]
           | ThreeOfAKind [Card]
           | FullHouse [Card]
           | FourOfAKind [Card]
@@ -288,11 +331,7 @@ card [v,s] = C (toValue v) s
       toValue 'J' = 11
       toValue 'T' = 10
       toValue  c  = ((ord c) - (ord '0'))
-\end{lstlisting}
-\lhN
-\hspace*{\fill}
-\lhA
-\begin{lstlisting}[frame=single]
+
 same :: (Eq a) => (t -> a) -> t -> t -> Bool
 same f a b = f a == f b
 
@@ -312,6 +351,7 @@ ranking :: [[Card]] -> Hand
 ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
 ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
 ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c,d],[e]]     = TwoPairs [a,b,c,d,e]
 ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
 

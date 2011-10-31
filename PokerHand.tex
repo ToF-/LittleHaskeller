@@ -27,7 +27,7 @@
 \input{LittleHaskeller.tex}
 
 \begin{document}
-\lstset{ 
+\lstset{classoffset=0,
         language=Haskell,
 	basicstyle=\color{black}\sffamily\small,
 	columns=fullflexible,
@@ -46,6 +46,9 @@
 	keywordstyle=\color{blue},
 	identifierstyle=\color{black}\textsl,
 	morekeywords={subsequences, comparing, Suit, Card, Value, Hand},
+        classoffset=1,
+        morekeywords={C, HighCard,Pair,TwoPairs,ThreeOfAKind,FullHouse,Straight,Flush,StraightFlush,FourOfAKind}, keywordstyle={\color{darkgreen}},
+        classoffset=0,
 	stringstyle=\color{darkgreen},
 	commentstyle=\color{red},
 	captionpos=b,

@@ -11,6 +11,7 @@ type Suit = Char
 
 data Hand = HighCard [Card]
           | Pair     [Card]
+          | TwoPairs [Card]
           | ThreeOfAKind [Card]
           | Straight [Card]
           | Flush [Card]
@@ -43,7 +44,7 @@ rSortBy f = sortBy (flip f)
 (>>.) = flip (.)
 
 hand :: String -> Hand
-hand =   cards
+hand =     cards
        >>. rSortBy (comparing value)
        >>. groupBy (same value)
        >>. rSortBy (comparing length)
@@ -55,6 +56,7 @@ ranking :: [[Card]] -> Hand
 ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
 ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
 ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c,d],[e]]     = TwoPairs [a,b,c,d,e]
 ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
 

@@ -22,6 +22,7 @@
 \begin{lstlisting}[frame=single]
 data Hand = HighCard [Card]
           | Pair     [Card]
+          | TwoPairs [Card]
           | ThreeOfAKind [Card]
           | Straight [Card]
           | FullHouse [Card]
@@ -38,6 +39,7 @@ ranking :: [[Card]] -> Hand
 ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
 ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
 ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c,d],[e]]     = TwoPairs [a,b,c,d,e]
 ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]] 
     | value a - value e == 4 = Straight [a,b,c,d,e] 
@@ -55,6 +57,7 @@ ranking :: [[Card]] -> Hand
 ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
 ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
 ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c,d],[e]]     = TwoPairs [a,b,c,d,e]
 ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]] 
     | value a - value e == 4 = Straight [a,b,c,d,e] 
@@ -72,6 +75,7 @@ ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e]
 \begin{lstlisting}[frame=single]
 data Hand = HighCard [Card]
           | Pair     [Card]
+          | TwoPairs [Card]
           | ThreeOfAKind [Card]
           | Straight [Card]
           | Flush [Card]
@@ -86,6 +90,7 @@ ranking :: [[Card]] -> Hand
 ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
 ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
 ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c,d],[e]]     = TwoPairs [a,b,c,d,e]
 ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]] 
     | value a - value e == 4 = Straight [a,b,c,d,e] 
@@ -107,6 +112,7 @@ ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e]
 \begin{lstlisting}[frame=single]
 data Hand = HighCard [Card]
           | Pair     [Card]
+          | TwoPairs [Card]
           | ThreeOfAKind [Card]
           | Straight [Card]
           | Flush [Card]
@@ -121,6 +127,7 @@ ranking :: [[Card]] -> Hand
 ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
 ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
 ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c,d],[e]]     = TwoPairs [a,b,c,d,e]
 ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]] 
     | value a - value e == 4 = Straight [a,b,c,d,e] 
@@ -184,6 +191,7 @@ ranking :: [[Card]] -> Hand
 ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
 ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
 ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c,d],[e]]     = TwoPairs [a,b,c,d,e]
 ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]]
     | value a - value e == 4 = Straight [a,b,c,d,e] 
@@ -238,6 +246,7 @@ ranking :: [[Card]] -> Hand
 ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
 ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
 ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c,d],[e]]     = TwoPairs [a,b,c,d,e]
 ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
 \end{lstlisting}
@@ -308,7 +317,8 @@ main = runTestTT $ TestList
        ,"5♥ 2♦ 3♥ 4♦ 2♥" `beat` "A♥ K♥ Q♦ J♦ 9♥"
        ,"5♥ 4♦ 3♥ 2♦ 3♣" `beat` "A♥ K♥ Q♦ J♦ 9♥"
        ,"5♥ 4♦ 3♥ 3♣ 2♥" `beat` "7♦ 5♥ 3♦ 2♠ 2♦"
-       ,"2♦ 2♣ 2♠ 3♥ 4♦" `beat` "A♥ A♠ K♣ Q♦ J♠"
+       ,"2♦ 2♣ 3♣ 3♠ 4♥" `beat` "A♥ A♠ K♣ Q♦ J♠"  
+       ,"2♦ 2♣ 2♠ 3♥ 4♦" `beat` "A♥ A♠ K♣ K♦ J♠"
        ,"2♦ 2♠ 2♥ 2♣ 3♦" `beat` "A♥ A♦ A♠ K♥ K♠"
        ,"6♠ 5♦ 4♣ 3♦ 2♥" `beat` "A♣ A♥ A♦ K♣ Q♠"
        ,"5♠ 4♦ 3♣ 2♦ A♥" `beat` "A♣ A♥ A♦ K♣ Q♠"
@@ -333,6 +343,7 @@ type Suit = Char
 
 data Hand = HighCard [Card]
           | Pair     [Card]
+          | TwoPairs [Card]
           | ThreeOfAKind [Card]
           | Straight [Card]
           | Flush [Card]
@@ -380,6 +391,7 @@ ranking :: [[Card]] -> Hand
 ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
 ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
 ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c,d],[e]]     = TwoPairs [a,b,c,d,e]
 ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
 
