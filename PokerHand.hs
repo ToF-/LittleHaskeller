@@ -12,6 +12,7 @@ type Suit = Char
 data Hand = HighCard [Card]
           | Pair     [Card]
           | ThreeOfAKind [Card]
+          | Straight [Card]
           | FullHouse [Card]
           | FourOfAKind [Card]
             deriving (Ord,Eq)
@@ -46,6 +47,11 @@ ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
 ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
 ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
 ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
+ranking [[a],[b],[c],[d],[e]] 
+    | value a - value e == 4 = Straight [a,b,c,d,e] 
+ranking [[a],[b],[c],[d],[e]] 
+    | value a == 14 && value b == 5 = Straight [b,c,d,e,a] 
+
 ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
 
 cards :: String -> [Card]

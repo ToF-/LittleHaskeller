@@ -1,0 +1,67 @@
+\newpage
+%----------------------------------------------------------------------------------------------------
+\section{Straight \& Flush} 
+%----------------------------------------------------------------------------------------------------
+\vspace{10cm}
+\hrule
+
+\lhQ So far, our \il!hand! function is still not correct with regard to the rules of Poker.
+\lhA Agreed. At least three rankings are missing.
+\lhN What are they ?
+\lhA The \emph{Straight}, the \emph{Flush}, and the \emph{Straight Flush}.
+\lhN What about the \emph{Royal Flush}?
+\lhA It's another name for the highest \emph{Straight Flush}.
+\lhN I'll begin with a test for a \emph{Straight} beating any \emph{Three of a Kind}. What is an example of the lowest possible \emph{Straight}?
+\lhA \diamonds5 \clubs4 \diamonds3 \hearts2 \spades1. This is a special case, though, because the ace is not the highest value in that hand.
+\lhN Then, let's begin with the general case and use \spades6 \diamonds5 \clubs4 \diamonds3 \hearts2 instead:
+\begin{lstlisting}[frame=single]
+        ,"6♠ 5♦ 4♣ 3♦ 2♥" `beat` "A♣ A♥ A♦ K♣ Q♠"]
+\end{lstlisting}
+\hspace*{\fill}
+\lhA \failure We'll use the same routine as before. First, describe the new \il!Hand! value:
+\begin{lstlisting}[frame=single]
+data Hand = HighCard [Card]
+          | Pair     [Card]
+          | ThreeOfAKind [Card]
+          | Straight [Card]
+          | FullHouse [Card]
+          | FourOfAKind [Card]
+            deriving (Ord,Eq)
+\end{lstlisting}
+\error then completing the \il!hand! function.
+\lhN Do you know how to recognize a \il!Straight!?
+\lhA \error Yes: it's like a \il!HighCard!, meaning that every value is distinct, but the values are in sequence, meaning that the highest value minus the lowest should equal 4. I'll add this criteria as guard:
+\lhN Go on.
+\lhA
+\begin{lstlisting}[frame=single]
+ranking :: [[Card]] -> Hand
+ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
+ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
+ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
+ranking [[a],[b],[c],[d],[e]] 
+    | value a - value e == 4 = Straight [a,b,c,d,e] 
+ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
+\end{lstlisting}
+\success And now the test is passing.
+\lhN Good. What about the special case where the ace is the lowest? I'll add the test:
+\begin{lstlisting}[frame=single]
+       ,"5♠ 4♦ 3♣ 2♦ A♥" `beat` "A♣ A♥ A♦ K♣ Q♠"]
+\end{lstlisting}
+\failure The test fails. Can you make it pass ?
+\lhA \failure Yes, we just have to add the same pattern with a new guard for the case where the highest card is an ace and the next one is a five:
+\begin{lstlisting}[frame=single]
+ranking :: [[Card]] -> Hand
+ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
+ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
+ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
+ranking [[a],[b],[c],[d],[e]] 
+    | value a - value e == 4 = Straight [a,b,c,d,e] 
+ranking [[a],[b],[c],[d],[e]] 
+    | value a == 14 && value b == 5 = Straight [b,c,d,e,a] 
+ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
+\end{lstlisting}
+\success Note that I order the cards in the value differently, so that the ace is at the last position. 
+\lhend
+
