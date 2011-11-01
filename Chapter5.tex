@@ -139,6 +139,7 @@ ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
 \end{lstlisting}
 \success Done.
+\newpage
 \lhN Then, write a clearer version of \il!hand!.
 \lhA Here we go:
 \begin{lstlisting}[frame=single]
@@ -180,7 +181,6 @@ non-exhaustive pattern in function ranking
 \end{verbatim}
 \end{small}
 Can you make it pass?
-\hspace*{\fill}
 \lhA \error Let's begin by adding the pattern for \emph{Three of a Kind}:
 \begin{lstlisting}[frame=single]
 ranking :: [[Card]] -> Hand
@@ -192,10 +192,9 @@ ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e]
 \lhN Here's what the error message says: \\
 \begin{small}
 \begin{verbatim}
-Not in scope: data constructor `TwoPairs
+Not in scope: data constructor `TwoPairs'
 \end{verbatim}
 \end{small}
-\hspace*{\fill}
 \lhA Let's insert the constructor into the \il!Hand! type:
 \begin{lstlisting}[frame=single]
 data Hand = HighCard [Card]
@@ -204,7 +203,8 @@ data Hand = HighCard [Card]
             deriving (Ord,Eq)
 \end{lstlisting}
 \success And now we can detect and compare \emph{Two Pairs} hands. 
-\lhN Good.. Now, here's a test saying that the lowest \emph{Three of a Kind} can beat the highest possible \emph{Two Pairs}.
+\newpage
+\lhN Good. Now, here's a test saying that the lowest \emph{Three of a Kind} can beat the highest possible \emph{Two Pairs}.
 \begin{lstlisting}[frame=single]
        ,"2♦ 2♣ 2♠ 3♥ 4♦" `beat` "A♥ A♠ K♣ K♦ J♠"]
 \end{lstlisting}
@@ -214,7 +214,6 @@ The fails with a message similar to the previous one: \\
 non-exhaustive pattern in function ranking
 \end{verbatim}
 \end{small}
-\hspace*{\fill}
 \lhA \error Let's add the pattern for \emph{Three of a Kind}:
 \begin{lstlisting}[frame=single]
 ranking :: [[Card]] -> Hand
@@ -224,13 +223,12 @@ ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
 \end{lstlisting}
 \error And you should have a new message.
-\lhN Exactly: \\
+\lhN Indeed: \\
 \begin{small}
 \begin{verbatim}
 Not in scope: data constructor `ThreeOfAKind'
 \end{verbatim}
 \end{small}
-\hspace*{\fill}
 \lhA Here I go:
 \begin{lstlisting}[frame=single]
 data Hand = HighCard [Card]
@@ -249,7 +247,6 @@ data Hand = HighCard [Card]
        ,"2♦ 2♠ 2♥ 2♣ 3♦" `beat` "A♥ A♦ A♠ K♥ K♠"]
 \end{lstlisting}
 It states that the lowest \emph{Four of a Kind} beats the highest \emph{Full House}.
-\hspace*{\fill}
 \lhA \error Let's begin with adding the constructors:
 \begin{lstlisting}[frame=single]
 data Hand = HighCard [Card]
@@ -300,7 +297,6 @@ main = runTestTT $ TestList
        ,"2♦ 2♠ 2♥ 2♣ 3♦" `beat` "A♥ A♦ A♠ K♥ K♠"]
     where beat h g = comparing hand h g ~?= GT
 \end{lstlisting} %$
-\hspace*{\fill}
 \lhA And here's the tested code:
 \begin{lstlisting}[frame=single]
 module PokerHand

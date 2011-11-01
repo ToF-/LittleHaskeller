@@ -90,7 +90,6 @@ Possible fix: add an instance declaration
 for (Eq Card)
 \end{alltt}
 \end{small}
-\hspace*{\fill} 
 \lhA \error Again, let's do what the compiler suggests 
 \begin{lstlisting}[frame=single]
 data Card = C deriving (Ord,Eq)
@@ -107,7 +106,7 @@ main = runTestTT $ TestList
        [compare (card "6♣") (card "6♠") ~?= EQ
        ,compare (card "6♣") (card "5♠") ~?= GT]
 \end{lstlisting} % $
-How do we make it pass?
+How do we make it pass? 
 \lhA \error We have to compare the rank values of the cards, so we should store this value in the \il!Card! type:
 \begin{lstlisting}[frame=single]
 data Card = C Value deriving (Ord,Eq)
@@ -161,7 +160,6 @@ main = runTestTT $ TestList
        [comparing card "6♣" "6♠" ~?= EQ
        ,comparing card "6♣" "5♠" ~?= GT]
 \end{lstlisting} % $
-\hspace*{\fill}
 \lhA \success Nice!
 \lhN Now for my new test:
 \begin{lstlisting}[frame=single]
@@ -188,7 +186,6 @@ main = runTestTT $ TestList
        ,comparing card "T♣" "J♠" ~?= LT
        ,comparing card "K♣" "A♣" ~?= LT]
 \end{lstlisting} % $
-\hspace*{\fill} 
 \lhA \failure Ok. 
 \begin{lstlisting}[frame=single]
 card :: String -> Card
@@ -283,9 +280,8 @@ sd = ["2♣","9♣","T♣","J♣","Q♣","K♣","A♣"]
 main = runTestTT $ TestList 
        [sortBy (comparing card) ud  ~?= sd]
 \end{lstlisting} % $
-\hspace*{\fill}
 \lhA \success Yes!
-\lhN I wonder what would the test show if it failed. Let's falsify it:
+\newpage \lhN I wonder what would the test show if it failed. Let's falsify it:
 \begin{lstlisting}[frame=single]
 import Data.Ord (comparing)
 import Data.List (sortBy)
@@ -322,7 +318,6 @@ sd = words "2♣ 9♣ T♣ J♣ Q♣ K♣ A♣"
 main = runTestTT $ TestList 
        [sortBy (comparing card) ud  ~?= sd]
 \end{lstlisting} % $
-\hspace*{\fill}
 \lhA \success And this is the tested code:
 \begin{lstlisting}[frame=single]
 module PokerHand

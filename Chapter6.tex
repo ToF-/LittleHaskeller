@@ -31,7 +31,7 @@ data Hand = HighCard [Card]
 \end{lstlisting}
 \failure then completing the \il!hand! function.
 \lhN Do you know how to recognize a \il!Straight!?
-\lhA \failure Yes: it's like a \il!HighCard!, meaning that every value is distinct, but the values are in sequence, meaning that the highest value minus the lowest should equal 4. I'll add this criteria as guard:
+\lhA \failure Yes: it's like a \il!HighCard!, meaning that every value is distinct, but the values are in sequence, meaning that the highest value minus the lowest should equal 4. I'll add this criteria as guard.
 \lhN Go on.
 \lhA
 \begin{lstlisting}[frame=single]
@@ -276,7 +276,6 @@ hand =   promoteFlush
 (flip (.)) :: (a -> b) -> (b -> c) -> a -> c
 \end{verbatim}
 \end{small}
-\hspace*{\fill}
 \lhA We need a new operator, then:
 \begin{lstlisting}[frame=single]
 (>>.) :: (a -> b) -> (b -> c) -> (a -> c)
@@ -327,7 +326,6 @@ main = runTestTT $ TestList
        ,"6♥ 5♥ 4♥ 3♥ 2♥" `beat` "A♦ A♠ A♥ A♠ K♥"]
     where beat h g = comparing hand h g ~?= GT
 \end{lstlisting} % $
-\hspace*{\fill}
 \lhA And this is the tested code:
 \begin{lstlisting}[frame=single]
 module PokerHand
@@ -411,5 +409,7 @@ promoteFlush (HighCard cs) | flush cs = Flush cs
 promoteFlush (Straight cs) | flush cs = StraightFlush cs
 promoteFlush h = h
 \end{lstlisting}
+\lhN We have a done a lot of work! What would you like to do now ?
+\lhA Let's take a walk.
 \lhend
 

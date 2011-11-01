@@ -100,6 +100,7 @@ card [v,s] = C (toValue v) s
 \success Done.
 \lhN Can I add my test on \il!flush! now?
 \lhA Yes.
+\newpage
 \lhN Here it is:
 \begin{lstlisting}[frame=single]
 main = runTestTT $ TestList 
@@ -126,7 +127,6 @@ main = runTestTT $ TestList
        ,flush (cards "A♠ T♠ 3♠ 4♠ 2♠") ~?= True]
     where cards = map card . words
 \end{lstlisting} % $
-\hspace*{\fill}
 \lhA \failure Ok. I think I can take a more general approach:
 \begin{lstlisting}[frame=single]
 flush :: [Card] -> Bool
@@ -153,7 +153,6 @@ main = runTestTT $ TestList
        ,flush (cards "A♠ T♠ 3♠ 4♠ 2♠") ~?= True]
     where cards = map card . words
 \end{lstlisting} % $
-\hspace*{\fill}
 \lhA And this is the tested code:
 \begin{lstlisting}[frame=single]
 module PokerHand

@@ -28,7 +28,6 @@ main = runTestTT $ TestList
        ,comparing hand "6♣ 4♦ A♣ 3♠ K♠" "8♠ J♥ 7♦ 5♥ 6♣" ~?= GT]
     where cards = map card . words 
 \end{lstlisting} % $
-\hspace*{\fill}
 \lhA This last test is a bit long.
 \lhN Ok, let's rephrase it this way:
 \begin{lstlisting}[frame=single]
@@ -42,7 +41,6 @@ main = runTestTT $ TestList
     where cards = map card . words 
           beat h g = comparing hand h g ~?= GT
 \end{lstlisting} % $
-\hspace*{\fill}
 \lhA \error OK. We need to create the \il!hand! function. But first I will borrow your \il!cards! utility function.
 \lhN Sure, take it to your side.
 \begin{lstlisting}[frame=single]
@@ -55,7 +53,6 @@ main = runTestTT $ TestList
        ,"6♣ 4♦ A♣ 3♠ K♠" `beat` "8♥ J♥ 7♦ 5♥ 6♣"]
     where beat h g = comparing hand h g ~?= GT
 \end{lstlisting} % $
-\hspace*{\fill}
 \lhA \error Thanks
 \begin{lstlisting}[frame=single]
 cards :: String -> [Cards]
@@ -138,7 +135,6 @@ hand s = HighCard $ sortBy (flip compare) $ cards s
        ,"5♥ 2♦ 3♥ 4♦ 2♥" `beat` "A♥ K♥ Q♦ J♦ 9♥"
        ,"5♥ 4♦ 3♥ 2♦ 3♣" `beat` "A♥ K♥ Q♦ J♦ 9♥"]
 \end{lstlisting}
-\hspace*{\fill}
 \lhA \failure I'll aggravate my \emph{fake} with a new pattern:
 \begin{lstlisting}[frame=single]
 hand :: String -> Hand
@@ -279,7 +275,7 @@ hand s = if hasAPair (groups cs) then Pair
              hasAPair gs = length gs == 4 
 \end{lstlisting} % $ 
 \success But, this code is still too long.
-\lhN Maybe we can get rid of \il!hasAPair!
+\newpage \lhN Maybe we can get rid of \il!hasAPair!
 \lhA \success Let's try:
 \begin{lstlisting}[frame=single]
 hand :: String -> Hand
@@ -332,7 +328,7 @@ flush (c:cs) = all (\x -> same suit c x) cs
 
 \end{lstlisting}
 \success You are right.
-\lhN Simplify, then!
+\newpage \lhN Simplify, then!
 \lhA Ok. \begin{lstlisting}[frame=single]
 flush :: [Card] -> Bool
 flush (c:cs) = all (same suit c) cs
@@ -367,8 +363,7 @@ main = runTestTT $ TestList
        ,"5♥ 4♦ 3♥ 2♦ 3♣" `beat` "A♥ K♥ Q♦ J♦ 9♥"]
     where beat h g = comparing hand h g ~?= GT
 \end{lstlisting} % $
-\hspace*{\fill}
-\lhA \success And this is the tested code: first the type declarations:
+\lhA \success And this is the tested code:
 \begin{lstlisting}[frame=single]
 module PokerHand
 where
@@ -381,11 +376,7 @@ type Value = Int
 type Suit = Char
 
 data Hand = HighCard [Card] | Pair  deriving (Ord,Eq)
-\end{lstlisting}
-\newpage
-\lhN What about the functions?
-\lhA Here they are:
-\begin{lstlisting}[frame=single]
+
 card :: String -> Card
 card [v,s] = C (toValue v) s
     where 
