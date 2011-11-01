@@ -9,16 +9,22 @@ data Card = C { value :: Value, suit :: Suit }
 type Value = Int
 type Suit = Char
 
-data Hand = HighCard [Card]
-          | Pair     [Card]
-          | TwoPairs [Card]
-          | ThreeOfAKind [Card]
-          | Straight [Card]
-          | Flush [Card]
-          | FullHouse [Card]
-          | FourOfAKind [Card]
-          | StraightFlush [Card]
-            deriving (Ord,Eq)
+data Hand = H Ranking [Card]
+          deriving (Ord, Eq)
+
+data Ranking = HighCard
+             | Pair
+             | TwoPairs
+             | ThreeOfAKind
+             | Straight
+             | Flush
+             | FullHouse
+             | FourOfAKind
+             | StraightFlush
+               deriving (Eq, Ord, Show)
+               
+ranking :: Hand -> Ranking
+ranking (H r _) = r
 
 card :: String -> Card
 card [v,s] = C (toValue v) s
@@ -48,30 +54,32 @@ hand =     cards
        >>. rSortBy (comparing value)
        >>. groupBy (same value)
        >>. rSortBy (comparing length)
-       >>. ranking 
+       >>. rank
        >>. promoteStraight
        >>. promoteFlush    
 
-ranking :: [[Card]] -> Hand
-ranking [[a,b,c,d],[e]]       = FourOfAKind [a,b,c,d,e]
-ranking [[a,b,c],[d,e]]       = FullHouse [a,b,c,d,e]
-ranking [[a,b,c],[d],[e]]     = ThreeOfAKind [a,b,c,d,e]
-ranking [[a,b],[c,d],[e]]     = TwoPairs [a,b,c,d,e]
-ranking [[a,b],[c],[d],[e]]   = Pair     [a,b,c,d,e]
-ranking [[a],[b],[c],[d],[e]] = HighCard [a,b,c,d,e] 
+rank :: [[Card]] -> Hand
+rank [[a,b,c,d],[e]]       = H FourOfAKind [a,b,c,d,e]
+rank [[a,b,c],[d,e]]       = H FullHouse [a,b,c,d,e]
+rank [[a,b,c],[d],[e]]     = H ThreeOfAKind [a,b,c,d,e]
+rank [[a,b],[c,d],[e]]     = H TwoPairs [a,b,c,d,e]
+rank [[a,b],[c],[d],[e]]   = H Pair     [a,b,c,d,e]
+rank [[a],[b],[c],[d],[e]] = H HighCard [a,b,c,d,e] 
 
 cards :: String -> [Card]
 cards = map card . words 
 
 promoteStraight :: Hand -> Hand
-promoteStraight (HighCard [a,b,c,d,e]) 
-    | value a - value e == 4 = Straight [a,b,c,d,e]
-promoteStraight (HighCard [a,b,c,d,e]) 
-    | value a == 14 &&  value b == 5 = Straight [b,c,d,e,a]
+promoteStraight (H HighCard [a,b,c,d,e]) 
+    | value a - value e == 4 = H Straight [a,b,c,d,e]
+promoteStraight (H HighCard [a,b,c,d,e]) 
+    | value a == 14 &&  value b == 5 = H Straight [b,c,d,e,a]
 promoteStraight h = h
 
 
 promoteFlush :: Hand -> Hand
-promoteFlush (HighCard cs) | flush cs = Flush cs
-promoteFlush (Straight cs) | flush cs = StraightFlush cs
+promoteFlush (H HighCard cs) | flush cs = H Flush cs
+promoteFlush (H Straight cs) | flush cs = H StraightFlush cs
 promoteFlush h = h
+
+

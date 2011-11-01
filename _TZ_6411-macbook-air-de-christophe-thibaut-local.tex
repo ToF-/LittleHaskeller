@@ -1,0 +1,122 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{longtable,geometry}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath, amssymb}
+\usepackage[T1]{fontenc}
+\usepackage[babel]{csquotes}
+\usepackage{multicol}
+\usepackage{eurosym}
+% \MakeAutoQuote{Â«}{Â»}
+\pagestyle{headings}
+\geometry{dvips,a4paper,margin=1.5in}
+
+\usepackage[usenames]{color}
+\usepackage{amssymb,amsmath} 
+\usepackage{listings}
+\usepackage{verbatim}
+\usepackage{alltt}
+\usepackage{moreverb}
+\usepackage{txfonts}
+\addtolength{\hoffset}{-1.5cm}
+\addtolength{\voffset}{-1.5cm}
+\addtolength{\textwidth}{3cm}
+\addtolength{\textheight}{3cm}
+\title{Poker Hand}
+\author{by ToF}
+\input{LittleHaskeller.tex}
+
+\begin{document}
+\newpage
+%----------------------------------------------------------------------------------------------------
+\section{Printing} 
+%----------------------------------------------------------------------------------------------------
+\vspace{10cm}
+\hrule
+
+\lhQ What should we work on, now ?
+\lhA Let's do something that is easy, for a change.
+\lhN What about printing the rankings ?
+\lhA That will be short and sweet.
+\lhN What do we print the ranking of ?
+\lhA \il!Hand!s.
+\lhN Here's my first test
+\begin{lstlisting}[frame=single]
+ showRanking (hand "6♣ 4♦ A♣ 3♠ K♠") ~?= "HighCard"]
+\end{lstlisting} %$
+\lhA Here's the code to pass the test:
+\begin{lstlisting}[frame=single]
+showRanking :: Hand -> String
+showRanking _ = "HighCard"
+\end{lstlisting}
+\success That was easy.
+\lhN I immediately add another test:
+\begin{lstlisting}[frame=single]
+ showRanking (hand "6♣ 4♦ A♣ 3♠ 3♠") ~?= "Pair"]
+\end{lstlisting}
+\lhA I'll just add some patterns:
+\begin{lstlisting}[frame=single]
+showRanking :: Hand -> String
+showRanking (HighCard _) = "HighCard"
+showRanking (Pair _) = "Pair"
+\end{lstlisting}
+\success Easy. And wrong.
+\lhN What's wrong with that code ?
+\lhA We already have keywords for ranking values, so we just have to \il!show! these values.
+\lhN You mean I should write my test this way:
+\begin{lstlisting}[frame=single]
+       ,show HighCard ~?= "HighCard"
+       ,show Pair ~?= "Pair" ]
+\end{lstlisting}
+Is that what you mean ?
+\lhA \error Exactly.
+\lhN But these tests provoke an error:
+\begin{small}
+\begin{verbatim}
+No instance for (Show ([Card] -> Hand))
+  arising from a use of `show' at Tests.hs
+Possible fix: add an instance declaration 
+  for (Show ([Card] -> Hand))
+\end{verbatim}
+\end{small}
+\lhA It's a problem because \il!Pair! and \il!HighCard! are of type "function from list of \il!Card!s to \il!Hand!s". 
+In fact we cannot add an instance declaration for this type. 
+\lhN What can we do to \il!show! those keywords then ?
+\lhA Consider \il!HighCard!, \il!Pair! etc. as values of a type.
+\lhN Ok, let's do this.
+\lhA First we create the new type:
+\begin{lstlisting}[frame=single]
+data Ranking = HighCard 
+             | Pair
+             | TwoPairs
+             | ThreeOfAKind
+             | Straight
+             | Flush
+             | FullHouse
+             | FourOfAKind
+             | StraightFlush
+               deriving (Show)
+\end{lstlisting}
+\error Of course, these values conflict with the values declared in the \il!Hand! type.
+\lhN That's right. We have \emph{multiple declarations} of all these values. We have to refactor.
+\lhA Before refactoring we should first get back to the green.
+\lhN You're right. Let's change these value names for now:
+
+\begin{lstlisting}[frame=single]
+data Ranking = HighCard_ 
+             | Pair_
+             | TwoPairs_
+             | ThreeOfAKind_
+             | Straight_
+             | Flush_
+             | FullHouse_
+             | FourOfAKind_
+             | StraightFlush_
+               deriving (Show)
+\end{lstlisting}
+\lhend
+
+
+
+
+\end{document}

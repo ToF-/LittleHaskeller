@@ -1,0 +1,192 @@
+\newpage
+%----------------------------------------------------------------------------------------------------
+\section{Printing} 
+%----------------------------------------------------------------------------------------------------
+\vspace{10cm}
+\hrule
+
+\lhQ What should we work on, now ?
+\lhA Let's do something that is easy, for a change.
+\lhN What about printing the rankings ?
+\lhA That will be short and sweet.
+\lhN What do we print the ranking of ?
+\lhA \il!Hand!s.
+\lhN Here's my first test
+\begin{lstlisting}[frame=single]
+ showRanking (hand "6♣ 4♦ A♣ 3♠ K♠") ~?= "HighCard"]
+\end{lstlisting} %$
+\lhA Here's the code to pass the test:
+\begin{lstlisting}[frame=single]
+showRanking :: Hand -> String
+showRanking _ = "HighCard"
+\end{lstlisting}
+\success That was easy.
+\lhN I immediately add another test:
+\begin{lstlisting}[frame=single]
+ showRanking (hand "6♣ 4♦ A♣ 3♠ 3♠") ~?= "Pair"]
+\end{lstlisting}
+\lhA I'll just add some patterns:
+\begin{lstlisting}[frame=single]
+showRanking :: Hand -> String
+showRanking (HighCard _) = "HighCard"
+showRanking (Pair _) = "Pair"
+\end{lstlisting}
+\success Easy. And wrong.
+\lhN What's wrong with that code ?
+\lhA We already have keywords for ranking values, so we just have to \il!show! these values.
+\lhN You mean I should write my test this way:
+\begin{lstlisting}[frame=single]
+       ,show HighCard ~?= "HighCard"
+       ,show Pair ~?= "Pair" ]
+\end{lstlisting}
+Is that what you mean ?
+\lhA \error Exactly.
+\lhN But these tests provoke an error:
+\begin{small}
+\begin{verbatim}
+No instance for (Show ([Card] -> Hand))
+  arising from a use of `show' at Tests.hs
+Possible fix: add an instance declaration 
+  for (Show ([Card] -> Hand))
+\end{verbatim}
+\end{small}
+\lhA It's a problem because \il!Pair! and \il!HighCard! are of type "function from list of \il!Card!s to \il!Hand!s". 
+In fact we cannot add an instance declaration for this type. 
+\lhN What can we do to \il!show! those keywords then ?
+\lhA Consider \il!HighCard!, \il!Pair! etc. as values of a type.
+\lhN Ok, let's do this.
+\lhA First we create the new type:
+\begin{lstlisting}[frame=single]
+data Ranking = HighCard 
+             | Pair
+             | TwoPairs
+             | ThreeOfAKind
+             | Straight
+             | Flush
+             | FullHouse
+             | FourOfAKind
+             | StraightFlush
+               deriving (Show)
+\end{lstlisting}
+\error Of course, these values conflict with the values declared in the \il!Hand! type.
+\lhN That's right. We have \emph{multiple declarations} of all these values. We have to refactor.
+\lhA Before refactoring we should first get back to the green.
+\lhN You're right. So I'll delete my tests.
+\lhA And I'll remove my declaration of \il!Ranking!. \\ 
+\success We're back to green.
+\lhN Now change the \il!Hand! type to include the \il!Ranking!.
+\lhA Yes. I'll replace the \il!Hand! type declaration:
+\begin{lstlisting}[frame=single]
+data Hand = HighCard [Card]
+          | Pair     [Card]
+          | TwoPairs [Card]
+          | ThreeOfAKind [Card]
+          | Straight [Card]
+          | Flush [Card]
+          | FullHouse [Card]
+          | FourOfAKind [Card]
+          | StraightFlush [Card]
+            deriving (Ord,Eq)
+\end{lstlisting}
+With a new declaration. Now to declare a \il!Hand! we use a constructor, \il!H!, followed by a \il!Ranking! and a list of \il!Card!s.
+\begin{lstlisting}[frame=single]
+data Hand = H Ranking [Card]
+          deriving (Ord, Eq)
+
+data Ranking = HighCard
+             | Pair
+             | TwoPairs
+             | ThreeOfAKind
+             | Straight
+             | Flush
+             | FullHouse
+             | FourOfAKind
+             | StraightFlush
+               deriving (Eq, Ord, Show)
+\end{lstlisting}
+\error This shouldn't work yet, though.
+\lhN Exact, we have many errors:
+\begin{small}
+\begin{verbatim}
+Couldn't match expected type `[Card] -> Hand'
+  against inferred type `Ranking'
+\end{verbatim}
+\end{small}
+\lhA \error We have to change the \il!ranking! function:
+\begin{lstlisting}[frame=single]
+ranking :: [[Card]] -> Hand
+ranking [[a,b,c,d],[e]]       = H FourOfAKind [a,b,c,d,e]
+ranking [[a,b,c],[d,e]]       = H FullHouse [a,b,c,d,e]
+ranking [[a,b,c],[d],[e]]     = H ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c,d],[e]]     = H TwoPairs [a,b,c,d,e]
+ranking [[a,b],[c],[d],[e]]   = H Pair     [a,b,c,d,e]
+ranking [[a],[b],[c],[d],[e]] = H HighCard [a,b,c,d,e] 
+\end{lstlisting}
+And those two functions as well:
+\begin{lstlisting}[frame=single]
+promoteStraight :: Hand -> Hand
+promoteStraight (H HighCard [a,b,c,d,e]) 
+    | value a - value e == 4 = H Straight [a,b,c,d,e]
+promoteStraight (H HighCard [a,b,c,d,e]) 
+    | value a == 14 &&  value b == 5 = H Straight [b,c,d,e,a]
+promoteStraight h = h
+
+promoteFlush :: Hand -> Hand
+promoteFlush (H HighCard cs) | flush cs = H Flush cs
+promoteFlush (H Straight cs) | flush cs = H StraightFlush cs
+promoteFlush h = h
+\end{lstlisting}
+\success And now everything is working.
+\lhN But how do we print the \il!Ranking! value of a \il!Hand! ?
+\lhA Write a test.
+\lhN Ok, I'll just restore my first test:
+\begin{lstlisting}[frame=single]
+  show (rank (hand "6♣ 4♦ A♣ 3♠ K♠")) ~?= "HighCard"
+\end{lstlisting}
+\error I named the function \il!rank! because the name \il!ranking! is already used.
+\lhA \error Ah, but we can change this.
+\lhN First, make the test pass.
+\lhA \error You are right.
+\begin{lstlisting}[frame=single]
+rank :: Hand -> Ranking
+rank (H r _) = r
+\end{lstlisting}
+\success Done.
+\lhN Now I change my test
+\begin{lstlisting}[frame=single]
+   show (ranking (hand "6♣ 4♦ A♣ 3♠ K♠")) ~?= "HighCard"
+\end{lstlisting}
+\error And you do the renaming.
+\lhA \error Ok, first the function giving the \il!Ranking! of a hand:
+\begin{lstlisting}[frame=single]
+ranking :: Hand -> Ranking
+ranking (H r _) = r
+\end{lstlisting}
+\lhN 
+\lhA \error Then the function to compute the ranking from the card groups:
+\begin{lstlisting}[frame=single]
+rank :: [[Card]] -> Hand
+rank [[a,b,c,d],[e]]       = H FourOfAKind [a,b,c,d,e]
+rank [[a,b,c],[d,e]]       = H FullHouse [a,b,c,d,e]
+rank [[a,b,c],[d],[e]]     = H ThreeOfAKind [a,b,c,d,e]
+rank [[a,b],[c,d],[e]]     = H TwoPairs [a,b,c,d,e]
+rank [[a,b],[c],[d],[e]]   = H Pair     [a,b,c,d,e]
+rank [[a],[b],[c],[d],[e]] = H HighCard [a,b,c,d,e] 
+\end{lstlisting}
+\lhN
+\lhA Then the main function:
+\begin{lstlisting}[frame=single]
+hand :: String -> Hand
+hand =     cards
+       >>. rSortBy (comparing value)
+       >>. groupBy (same value)
+       >>. rSortBy (comparing length)
+       >>. rank
+       >>. promoteStraight
+       >>. promoteFlush    
+\end{lstlisting}
+\success The refactoring is done.
+\lhend
+
+
+
