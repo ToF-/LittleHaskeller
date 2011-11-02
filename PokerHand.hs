@@ -1,3 +1,4 @@
+
 module PokerHand
 where
 import Char
@@ -75,3 +76,14 @@ promoteFlush :: Hand -> Hand
 promoteFlush (HighCard cs) | flush cs = Flush cs
 promoteFlush (Straight cs) | flush cs = StraightFlush cs
 promoteFlush h = h
+
+showRanking :: Hand -> String
+showRanking (Pair _)          = "Pair" 
+showRanking (TwoPairs _)      = "Two Pairs" 
+showRanking (ThreeOfAKind _)  = "Three of a Kind" 
+showRanking (Straight _)      = "Straight" 
+showRanking (Flush _)         = "Flush" 
+showRanking (FullHouse _)     = "Full House" 
+showRanking (FourOfAKind _)   = "Four of a Kind"
+showRanking (StraightFlush _) = "Straight Flush"
+showRanking _ = ""

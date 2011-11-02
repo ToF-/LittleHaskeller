@@ -9,5 +9,101 @@
 \lhA Let's do something that is easy, for a change.
 \lhN What about printing the rankings ?
 \lhA That will be short and sweet.
-\lhend
+\lhN Do you remember what the program is expected to print?
+\lhA Not much.
+\lhN Here's an example:
+\begin{alltt}
+\clubs{K} \spades{9} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6} Full House (winner)
+\clubs{9} \hearts{A} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6} Two Pair
+\clubs{A} \clubs{Q} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} 
+\hearts{9} \spades{5} 
+\diamonds{4} \diamonds{2} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6} Flush
+\spades{7} \spades{T} \spades{K} \diamonds{K} \diamonds{9} 
+\end{alltt}
+\lhA I see. We need to print:
+\begin{itemize}
+\item the line of cards we have in input
+\item the ranking of the hand found in the line (except for \emph{High Cards})
+\item the mention \il!"(winner)"! along with the best ranking
+\end{itemize}
+\hspace*{\fill}\vspace*{\fill}
+\lhN Let's take care of your second item: showing the ranking.
+\lhA Ok.
+\lhN  Here's a test:
+\begin{lstlisting}[frame=single]
+showRanking (hand "6♣ 4♦ A♣ 3♠ K♠") ~?= ""
+\end{lstlisting}
+\lhA Easy:
+\begin{lstlisting}[frame=single]
+showRanking :: Hand -> String
+showRanking _ = ""
+\end{lstlisting}
+\success And the test passes.
+\lhN Here's another test, then:
+\begin{lstlisting}[frame=single]
+showRanking (hand "5♥ 2♦ 3♥ 4♦ 2♥") ~?= "Pair"
+\end{lstlisting}
+\lhA 
+\begin{lstlisting}[frame=single]
+showRanking :: Hand -> String
+showRanking (Pair _) = "Pair"
+showRanking _ = ""
+\end{lstlisting}
+\success Done. That's easy.
+\lhN Yes, easy, and tedious. Could we skip the testing part on that feature?
+\lhA Not if we abide by the rule \#1 of TTD.
+\lhN Which is?
+\lhA You are not allowed to write any production code unless it is to make a failing unit test pass.
+\lhN But I don't want to create all these hands just so that we can test the label given to the ranking.
+\lhA Then just test the label given to the ranking.
+\lhN You mean I should write my tests like this:
+\begin{lstlisting}[frame=single]
+  ,showRanking HighCard ~?= ""
+  ,showRanking Pair ~?= "Pair"
+\end{lstlisting}
+It doesn't sound right, though. Look at the message:
+\begin{small}
+\begin{verbatim}
+Couldn't match expected type `Hand'
+against inferred type `[Card] -> Hand'
+\end{verbatim}
+\end{small}
+\lhA \error No, that's not right. You can't use these data constructor without a list of \il!Card!s.
+But you can use them with an empty list. 
+\lhN Let's try:
+\begin{lstlisting}[frame=single]
+       ,showRanking (HighCard [__]) ~?= ""
+       ,showRanking (Pair [__]) ~?= "Pair"
+\end{lstlisting}
+\lhA \success Yes, that's better.
+\lhN In that case, I'd rather create a single test for all ranking labels:
+\begin{lstlisting}[frame=single]
+       ,map showRanking [HighCard [__],
+                         Pair [__],
+                         TwoPairs [__],
+                         ThreeOfAKind [__],
+                         Straight [__],
+                         Flush [__],
+                         FullHouse [__],
+                         FourOfAKind [__],
+                         StraightFlush [__]] ~?=
+        ["","Pair","Two Pairs","Three of a Kind",
+         "Straight","Flush","Full House",
+         "Four of a Kind","Straight Flush"]
+\end{lstlisting}
+\lhA Ok. Here the function \il!showRanking!:
+\begin{lstlisting}[frame=single]
+showRanking :: Hand -> String
+showRanking (Pair _)          = "Pair" 
+showRanking (TwoPairs _)      = "Two Pairs" 
+showRanking (ThreeOfAKind _)  = "Three of a Kind" 
+showRanking (Straight _)      = "Straight" 
+showRanking (Flush _)         = "Flush" 
+showRanking (FullHouse _)     = "Full House" 
+showRanking (FourOfAKind _)   = "Four of a Kind"
+showRanking (StraightFlush _) = "Straight Flush"
+showRanking _ = ""
+\end{lstlisting}
+\success And your big test is passing. But this code is not quite satisfying.
 
+\lhend
