@@ -26,21 +26,14 @@ main = runTestTT $ TestList
        ,"6♥ 4♥ 3♥ 2♥ A♥" `beat` "A♠ K♣ Q♥ J♠ T♦"
        ,"5♥ 4♥ 3♥ 2♥ A♥" `beat` "A♦ A♠ A♥ A♠ K♥"
        ,"6♥ 5♥ 4♥ 3♥ 2♥" `beat` "A♦ A♠ A♥ A♠ K♥"
-       ,map showRanking [HighCard [],
-                         Pair [],
-                         TwoPairs [],
-                         ThreeOfAKind [],
-                         Straight [],
-                         Flush [],
-                         FullHouse [],
-                         FourOfAKind [],
-                         StraightFlush []] ~?=
-        ["","Pair","Two Pairs","Three of a Kind",
-         "Straight","Flush","Full House",
-         "Four of a Kind","Straight Flush"]
-
+       ,TestList [show HighCard ~?= "",
+                  show Pair ~?= "Pair",
+                  show TwoPairs ~?=  "Two Pairs",
+                  show ThreeOfAKind ~?= "Three of a Kind",
+                  show Straight ~?= "Straight",
+                  show Flush ~?= "Flush",
+                  show FullHouse ~?= "Full House",
+                  show FourOfAKind ~?= "Four of a Kind",
+                  show StraightFlush ~?= "Straight Flush"] 
        ]
     where beat h g = comparing hand h g ~?= GT
-
-
-
