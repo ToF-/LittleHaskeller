@@ -23,7 +23,7 @@
 \lhA I see. We need to print:
 \begin{itemize}
 \item the line of cards we have in input
-\item the ranking of the hand found in the line (except for \emph{High Cards})
+\item the ranking of the hand found in the line
 \item the mention \il!"(winner)"! along with the best ranking
 \end{itemize}
 \hspace*{\fill}\vspace*{\fill}
@@ -31,12 +31,12 @@
 \lhA Ok.
 \lhN  Here's a test:
 \begin{lstlisting}[frame=single]
-showRanking (hand "6♣ 4♦ A♣ 3♠ K♠") ~?= ""
+showRanking (hand "6♣ 4♦ A♣ 3♠ K♠") ~?= "High Card"
 \end{lstlisting}
 \lhA Easy:
 \begin{lstlisting}[frame=single]
 showRanking :: Hand -> String
-showRanking _ = ""
+showRanking _ = "High Card"
 \end{lstlisting}
 \success And the test passes.
 \lhN Here's another test, then:
@@ -47,7 +47,7 @@ showRanking (hand "5♥ 2♦ 3♥ 4♦ 2♥") ~?= "Pair"
 \begin{lstlisting}[frame=single]
 showRanking :: Hand -> String
 showRanking (Pair _) = "Pair"
-showRanking _ = ""
+showRanking _ = "High Card"
 \end{lstlisting}
 \success Done. That's easy.
 \lhN Yes, easy, and tedious. Could we skip the testing part on that feature?
@@ -58,7 +58,7 @@ showRanking _ = ""
 \lhA Then just test the label given to the ranking.
 \lhN You mean I should write my tests like this:
 \begin{lstlisting}[frame=single]
-  ,showRanking HighCard ~?= ""
+  ,showRanking HighCard ~?= "High Card"
   ,showRanking Pair ~?= "Pair"
 \end{lstlisting}
 It doesn't sound right, though. Look at the message:
@@ -72,28 +72,29 @@ against inferred type `[Card] -> Hand'
 But an empty list should do the trick.
 \lhN Let's try:
 \begin{lstlisting}[frame=single]
-       ,showRanking (HighCard [__]) ~?= ""
+       ,showRanking (HighCard [__]) ~?= "High Card"
        ,showRanking (Pair [__]) ~?= "Pair"
 \end{lstlisting}
 \lhA \success Yes, that's better.
 \lhN In that case, I'd rather create a single test for all ranking labels:
 \begin{lstlisting}[frame=single]
-       ,map showRanking [HighCard [__],
-                         Pair [__],
-                         TwoPairs [__],
-                         ThreeOfAKind [__],
-                         Straight [__],
-                         Flush [__],
-                         FullHouse [__],
-                         FourOfAKind [__],
-                         StraightFlush [__]] ~?=
-        ["","Pair","Two Pairs","Three of a Kind",
-         "Straight","Flush","Full House",
-         "Four of a Kind","Straight Flush"]
+map showRanking [HighCard [__],
+                   Pair [__],
+                   TwoPairs [__],
+                   ThreeOfAKind [__],
+                   Straight [__],
+                   Flush [__],
+                   FullHouse [__],
+                   FourOfAKind [__],
+                   StraightFlush [__]] ~?=
+     ["High Card","Pair","Two Pairs","Three of a Kind",
+      "Straight","Flush","Full House",
+      "Four of a Kind","Straight Flush"]
 \end{lstlisting}
 \lhA Ok. Here the function \il!showRanking!:
 \begin{lstlisting}[frame=single]
 showRanking :: Hand -> String
+showRanking (HighCard)        = "High Card"
 showRanking (Pair _)          = "Pair" 
 showRanking (TwoPairs _)      = "Two Pairs" 
 showRanking (ThreeOfAKind _)  = "Three of a Kind" 
@@ -102,7 +103,6 @@ showRanking (Flush _)         = "Flush"
 showRanking (FullHouse _)     = "Full House" 
 showRanking (FourOfAKind _)   = "Four of a Kind"
 showRanking (StraightFlush _) = "Straight Flush"
-showRanking _ = ""
 \end{lstlisting}
 \success And your big test is passing. But this is not quite satifying.
 \lhN Agreed. The test is not as expressive as it should be. What we want to express is that, for example: \\
@@ -110,15 +110,15 @@ showRanking _ = ""
 \lhA Then you can change the tests.
 \lhN Allright.
 \begin{lstlisting}[frame=single]
- TestList [show HighCard ~?= "",
-          show Pair ~?= "Pair",
-          show TwoPairs ~?=  "Two Pairs",
-          show ThreeOfAKind ~?= "Three of a Kind",
-          show Straight ~?= "Straight",
-          show Flush ~?= "Flush",
-          show FullHouse ~?= "Full House",
-          show FourOfAKind ~?= "Four of a Kind",
-          show StraightFlush ~?= "Straight Flush"] 
+ TestList [show HighCard ~?= "High Card",
+           show Pair ~?= "Pair",
+           show TwoPairs ~?=  "Two Pairs",
+           show ThreeOfAKind ~?= "Three of a Kind",
+           show Straight ~?= "Straight",
+           show Flush ~?= "Flush",
+           show FullHouse ~?= "Full House",
+           show FourOfAKind ~?= "Four of a Kind",
+           show StraightFlush ~?= "Straight Flush"] 
 \end{lstlisting}
 \error This provokes an error:
 \begin{small}
@@ -131,14 +131,14 @@ No instance for (Show ([Card] -> Hand))
 \lhA Create a data type for these values:
 \begin{lstlisting}[frame=single]
 data Ranking = HighCard
-             | Pair
-             | TwoPairs
-             | ThreeOfAKind
-             | Straight
-             | Flush
-             | FullHouse
-             | FourOfAKind
-             | StraightFlush
+              | Pair
+              | TwoPairs
+              | ThreeOfAKind
+              | Straight
+              | Flush
+              | FullHouse
+              | FourOfAKind
+              | StraightFlush
             deriving (Ord,Eq)
 \end{lstlisting}
 \error This is only the first step.
@@ -160,12 +160,12 @@ In the expression: FourOfAKind [a, b, c, d, ....]
 \lhA \error To fix this, we need to use \il!H!, the new data constructor:
 \begin{lstlisting}[frame=single]
 ranking :: [[Card]] -> Hand
-ranking [[a,b,c,d],[e]]       = H FourOfAKind [a,b,c,d,e]
-ranking [[a,b,c],[d,e]]       = H FullHouse [a,b,c,d,e]
-ranking [[a,b,c],[d],[e]]     = H ThreeOfAKind [a,b,c,d,e]
-ranking [[a,b],[c,d],[e]]     = H TwoPairs [a,b,c,d,e]
-ranking [[a,b],[c],[d],[e]]   = H Pair     [a,b,c,d,e]
-ranking [[a],[b],[c],[d],[e]] = H HighCard [a,b,c,d,e] 
+ranking [[a,b,c,d],[e]]  = H FourOfAKind [a,b,c,d,e]
+ranking [[a,b,c],[d,e]]  = H FullHouse [a,b,c,d,e]
+ranking [[a,b,c],[d],[e]]= H ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c,d],[e]]= H TwoPairs [a,b,c,d,e]
+ranking [[a,b],[c],[d],[e]]  = H Pair     [a,b,c,d,e]
+ranking [[a],[b],[c],[d],[e]]= H HighCard [a,b,c,d,e] 
 \end{lstlisting}
 \lhN We have the same error in functions \il!promoteStraight! and \il!promoteFlush!.
 \lhA \error We'll apply the same fix:
@@ -188,15 +188,16 @@ promoteFlush h = h
 \begin{verbatim}
 Couldn't match expected type `Hand' 
    against inferred type `Ranking'
-In the pattern: Pair _
+In the pattern: HighCard _
 In the definition of `showRanking': 
-   showRanking (Pair _) = "Pair"
+   showRanking (HighCard _) = "High Card"
 \end{verbatim}
 \end{small}
 \lhA Yes, \il!showRanking! is not correct any more. First we have to declare \il!Ranking! to be an instance of the class \il!Show!. Then we have to override the \il!show! function for \il!Ranking! values.
 \begin{lstlisting}[frame=single]
 instance (Show) Ranking
     where
+      show HighCard      = "High Card"
       show Pair          = "Pair" 
       show TwoPairs      = "Two Pairs" 
       show ThreeOfAKind  = "Three of a Kind" 
@@ -205,17 +206,16 @@ instance (Show) Ranking
       show FullHouse     = "Full House" 
       show FourOfAKind   = "Four of a Kind"
       show StraightFlush = "Straight Flush"
-      show _ = ""
 \end{lstlisting}
 \success And we're done.
 \lhN Now that the tests are passing, we should refactor the code.
 \lhA You are right. Let's begin with the \il!ranking! function:
 \begin{lstlisting}[frame=single]
 ranking :: [[Card]] -> Hand
-ranking [[a,b,c,d],[e]]       = H FourOfAKind [a,b,c,d,e]
-ranking [[a,b,c],[d,e]]       = H FullHouse [a,b,c,d,e]
-ranking [[a,b,c],[d],[e]]     = H ThreeOfAKind [a,b,c,d,e]
-ranking [[a,b],[c,d],[e]]     = H TwoPairs [a,b,c,d,e]
+ranking [[a,b,c,d],[e]] = H FourOfAKind [a,b,c,d,e]
+ranking [[a,b,c],[d,e]] = H FullHouse [a,b,c,d,e]
+ranking [[a,b,c],[d],[e]] = H ThreeOfAKind [a,b,c,d,e]
+ranking [[a,b],[c,d],[e]] = H TwoPairs [a,b,c,d,e]
 ranking [[a,b],[c],[d],[e]]   = H Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]] = H HighCard [a,b,c,d,e] 
 \end{lstlisting}
@@ -243,8 +243,126 @@ rank [[a],[b],[c],[d],[e]] = H HighCard [a,b,c,d,e]
 \end{lstlisting}
 \success There.
 \newpage \lhN Something is bothering me: the \il!rank! is not $DRY$.
-\lhA Yes. We can avoid all these repetitions by separating concerns:
+\lhA Yes. Since we list the cards along with every \il!Ranking! value, we can do that once in the main body of the function, and calculate the ranking in an auxiliary function. Thus we are separating concerns.
 \begin{lstlisting}[frame=single]
+rank :: [[Card]] -> Hand
+rank gs = H (calcRank gs) (concat gs)  
+    where calcRank [[_,_,_,_],_]   = FourOfAKind 
+          calcRank [[_,_,_],_]     = FullHouse
+          calcRank [[_,_,_],_,_]   = ThreeOfAKind
+          calcRank [[_,_],[_,_],_] = TwoPairs
+          calcRank [[_,_],_,_,_]   = Pair    
+          calcRank [_,_,_,_,_]     = HighCard 
+\end{lstlisting}
+\success As you probably know, \il!concat! concatenates several lists into one.
+
+\lhN Ok. Here's the test code:
+\begin{lstlisting}[frame=single]
+module Tests
+where 
+import Test.HUnit
+import PokerHand
+import Data.Ord (comparing)
+import Data.List (sort,sortBy)
+
+ud = words "A♣ 2♣ T♣ K♣ 9♣ Q♣ J♣"
+sd = words "2♣ 9♣ T♣ J♣ Q♣ K♣ A♣"
+
+main = runTestTT $ TestList 
+       [sortBy (comparing card) ud  ~?= sd
+       ,map suit (cards "A♣ A♦ A♥ A♠") ~?= ['♣','♦','♥','♠']
+       ,flush (cards "A♣ T♣ 3♣ 4♣ 2♣") ~?= True
+       ,flush (cards "A♠ T♣ 3♣ 4♣ 2♣") ~?= False
+       ,flush (cards "A♠ T♠ 3♠ 4♠ 2♠") ~?= True
+       ,"6♣ 4♦ A♣ 3♠ K♠" `beat` "8♥ J♥ 7♦ 5♥ 6♣"
+       ,"5♥ 2♦ 3♥ 4♦ 2♥" `beat` "A♥ K♥ Q♦ J♦ 9♥"
+       ,"5♥ 4♦ 3♥ 2♦ 3♣" `beat` "A♥ K♥ Q♦ J♦ 9♥"
+       ,"5♥ 4♦ 3♥ 3♣ 2♥" `beat` "7♦ 5♥ 3♦ 2♠ 2♦"
+       ,"2♦ 2♣ 3♣ 3♠ 4♥" `beat` "A♥ A♠ K♣ Q♦ J♠"  
+       ,"2♦ 2♣ 2♠ 3♥ 4♦" `beat` "A♥ A♠ K♣ K♦ J♠"
+       ,"2♦ 2♠ 2♥ 2♣ 3♦" `beat` "A♥ A♦ A♠ K♥ K♠"
+       ,"6♠ 5♦ 4♣ 3♦ 2♥" `beat` "A♣ A♥ A♦ K♣ Q♠"
+       ,"5♠ 4♦ 3♣ 2♦ A♥" `beat` "A♣ A♥ A♦ K♣ Q♠"
+       ,"6♥ 4♥ 3♥ 2♥ A♥" `beat` "A♠ K♣ Q♥ J♠ T♦"
+       ,"5♥ 4♥ 3♥ 2♥ A♥" `beat` "A♦ A♠ A♥ A♠ K♥"
+       ,"6♥ 5♥ 4♥ 3♥ 2♥" `beat` "A♦ A♠ A♥ A♠ K♥"
+       ,TestList [show HighCard ~?= "",
+                  show Pair ~?= "Pair",
+                  show TwoPairs ~?=  "Two Pairs",
+                  show ThreeOfAKind ~?= "Three of a Kind",
+                  show Straight ~?= "Straight",
+                  show Flush ~?= "Flush",
+                  show FullHouse ~?= "Full House",
+                  show FourOfAKind ~?= "Four of a Kind",
+                  show StraightFlush ~?= "Straight Flush"] 
+       ]
+    where beat h g = comparing hand h g ~?= GT
+\end{lstlisting} % $
+\lhA And here's the tested code:
+\begin{lstlisting}[frame=single]
+module PokerHand
+where
+import Char
+import Data.Ord
+import Data.List
+
+data Card = C { value :: Value, suit :: Suit } 
+            deriving (Ord,Eq)
+type Value = Int
+type Suit = Char
+
+data Hand = H Ranking [Card]
+            deriving (Ord,Eq)
+
+data Ranking = HighCard
+             | Pair
+             | TwoPairs
+             | ThreeOfAKind
+             | Straight
+             | Flush
+             | FullHouse
+             | FourOfAKind
+             | StraightFlush
+            deriving (Ord,Eq)
+
+instance (Show) Ranking
+    where
+      show Pair          = "Pair" 
+      show TwoPairs      = "Two Pairs" 
+      show ThreeOfAKind  = "Three of a Kind" 
+      show Straight      = "Straight" 
+      show Flush         = "Flush" 
+      show FullHouse     = "Full House" 
+      show FourOfAKind   = "Four of a Kind"
+      show StraightFlush = "Straight Flush"
+      show _ = ""
+\end{lstlisting}
+\lhN \lhA
+\begin{lstlisting}[frame=single]
+
+
+card :: String -> Card
+card [v,s] = C (toValue v) s
+    where 
+      toValue 'A' = 14
+      toValue 'K' = 13
+      toValue 'Q' = 12
+      toValue 'J' = 11
+      toValue 'T' = 10
+      toValue  c  = ((ord c) - (ord '0'))
+
+same :: (Eq a) => (t -> a) -> t -> t -> Bool
+same f a b = f a == f b
+
+flush :: [Card] -> Bool
+flush (c:cs) = all (same suit c) cs
+
+rSortBy :: (Ord a) => (a -> a -> Ordering) -> [a] -> [a]
+rSortBy f = sortBy (flip f)
+
+(>>.) :: (a -> b) -> (b -> c) -> (a -> c)
+(>>.) = flip (.)
+
 hand :: String -> Hand
 hand =     cards
        >>. rSortBy (comparing value)
@@ -262,6 +380,25 @@ rank gs = H (calcRank gs) (concat gs)
           calcRank [[_,_],[_,_],_] = TwoPairs
           calcRank [[_,_],_,_,_]   = Pair    
           calcRank [_,_,_,_,_]     = HighCard 
+
+cards :: String -> [Card]
+cards = map card . words 
+
+promoteStraight :: Hand -> Hand
+promoteStraight (H r [a,b,c,d,e]) 
+    | value a - value e == 4 = 
+        H Straight [a,b,c,d,e]
+promoteStraight (H HighCard [a,b,c,d,e]) 
+    | value a == 14 && value b == 5 = 
+        H Straight [b,c,d,e,a]
+promoteStraight h = h
+
+
+promoteFlush :: Hand -> Hand
+promoteFlush (H HighCard cs) 
+    | flush cs = H Flush cs
+promoteFlush (H Straight cs) 
+    | flush cs = H StraightFlush cs
+promoteFlush h = h
 \end{lstlisting}
-\success Done.
 \lhend

@@ -1,4 +1,3 @@
-
 module PokerHand
 where
 import Char
@@ -81,15 +80,19 @@ cards :: String -> [Card]
 cards = map card . words 
 
 promoteStraight :: Hand -> Hand
+promoteStraight (H r [a,b,c,d,e]) 
+    | value a - value e == 4 = 
+        H Straight [a,b,c,d,e]
 promoteStraight (H HighCard [a,b,c,d,e]) 
-    | value a - value e == 4 = H Straight [a,b,c,d,e]
-promoteStraight (H HighCard [a,b,c,d,e]) 
-    | value a == 14 &&  value b == 5 = H Straight [b,c,d,e,a]
+    | value a == 14 && value b == 5 = 
+        H Straight [b,c,d,e,a]
 promoteStraight h = h
 
 
 promoteFlush :: Hand -> Hand
-promoteFlush (H HighCard cs) | flush cs = H Flush cs
-promoteFlush (H Straight cs) | flush cs = H StraightFlush cs
+promoteFlush (H HighCard cs) 
+    | flush cs = H Flush cs
+promoteFlush (H Straight cs) 
+    | flush cs = H StraightFlush cs
 promoteFlush h = h
 
