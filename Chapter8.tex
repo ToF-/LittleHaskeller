@@ -1,0 +1,80 @@
+\newpage
+%----------------------------------------------------------------------------------------------------
+\section{Finding Hands} 
+%----------------------------------------------------------------------------------------------------
+\vspace{10cm}
+\hrule
+
+\lhQ We know how to compute a hand's ranking, and print that ranking. What do we need to do now?
+\lhA We need to find the five card hand with the best ranking in an arbitrary list of cards.
+\lhN How do we do that?
+\lhA Just write a failing test.
+\lhN Ok. Here we go:
+\begin{lstlisting}[frame=single]
+bestRanking "6♥ 6♦ 6♠ 6♣" ~?= Nothing
+\end{lstlisting}
+In that case, the result is \il!Nothing! because the string represent a list of less than five cards. You know about \il!Nothing!, right ?
+\lhA \error Yes. 
+\begin{lstlisting}[frame=single]
+bestRanking :: String -> Maybe Ranking
+bestRanking _ = Nothing
+\end{lstlisting}
+\success Your test is implying that \il!bestHand! consumes a \il!String! and returns, \il!Maybe!, a \il!Ranking!. 
+\lhN That is correct. Here's another one:
+\begin{lstlisting}[frame=single]
+bestRanking "6♣ 4♦ A♣ 3♠ K♠" ~?= Just HighCard
+\end{lstlisting}
+\lhA \failure I'll make it pass as fast as I can:
+\begin{lstlisting}[frame=single]
+bestRanking :: String -> Maybe Ranking
+bestRanking s | length (cards s) < 5 = Nothing
+bestRanking s = Just HighCard
+\end{lstlisting}
+\success We just ignore list of less than 5 cards.
+\lhN Ok. But there is still a \emph{fake}. Here's a new test:
+\begin{lstlisting}[frame=single]
+bestRanking "6♣ 6♦ A♣ 3♠ K♠" ~?= Just Pair
+\end{lstlisting}
+\lhA Easy: we just yield the ranking
+\begin{lstlisting}[frame=single]
+bestRanking :: String -> Maybe Ranking
+bestRanking s | length (cards s) < 5 = Nothing
+bestRanking s = Just (ranking (hand s))
+\end{lstlisting}
+\error Uh oh.
+\lhN
+\begin{small}
+\begin{verbatim}
+Not in scope: ranking
+\end{verbatim}
+\end{small}
+We don't have a function \il!ranking!. We had one, but we renamed it.
+\lhA Ok, here's the needed function:
+\begin{lstlisting}[frame=single]
+ranking :: Hand -> Ranking
+ranking (H r _) = r
+\end{lstlisting}
+\success and now the test passes.
+\lhN Ok. Here's the really complicated case:
+\begin{lstlisting}[frame=single]
+bestRanking "9♣ A♥ K♠ 3♣ K♦ 9♦ 6♦" ~?= Just TwoPairs
+\end{lstlisting}
+There are several possible five card hands we can form with these seven cards. Do you know how much?
+\lhA Yes, ${{7}\choose{5}} = \frac{7\times6 \times 5 \times 4 \times 3}{5 \times 4 \times 3 \times 2 \times 1} = \frac{2520}{120} = 21$
+\lhN Do you know how to find them?
+\lhA Sure: use the \il!subsequences! and \il!filter! functions:
+\begin{lstlisting}[frame=single]
+subsequences :: [a] -> [[a]] 	-- Defined in Data.List
+filter :: (a -> Bool) -> [a] -> [a] 	-- Defined in GHC.List
+\end{lstlisting}
+For example: 
+\begin{lstlisting}[frame=single]
+> filter (\s -> length s == 2) $ subsequences "CAT"
+["CA","CT","AT"]
+\end{lstlisting} % $
+\lhN Then do it. We test is still failing.
+\lhA OK:\emph{to be continued}
+
+
+\lhend
+

@@ -25,6 +25,7 @@ data Ranking = HighCard
 
 instance (Show) Ranking
     where
+      show HighCard      = "High Card"
       show Pair          = "Pair" 
       show TwoPairs      = "Two Pairs" 
       show ThreeOfAKind  = "Three of a Kind" 
@@ -33,7 +34,14 @@ instance (Show) Ranking
       show FullHouse     = "Full House" 
       show FourOfAKind   = "Four of a Kind"
       show StraightFlush = "Straight Flush"
-      show _ = ""
+
+
+ranking :: Hand -> Ranking
+ranking (H r _) = r
+
+bestRanking :: String -> Maybe Ranking
+bestRanking s | length (cards s) < 5 = Nothing
+bestRanking s = Just (ranking (hand s))
 
 card :: String -> Card
 card [v,s] = C (toValue v) s
