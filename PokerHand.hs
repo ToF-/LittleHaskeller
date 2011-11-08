@@ -40,8 +40,14 @@ ranking :: Hand -> Ranking
 ranking (H r _) = r
 
 bestRanking :: String -> Maybe Ranking
-bestRanking s | length (cards s) < 5 = Nothing
-bestRanking s = Just (ranking (hand s))
+bestRanking s = case (subLists 5 (cards s)) of
+                  [] -> Nothing
+                  hs -> Just (best hs)
+    where best = maximum . map ranking . map hand
+
+subLists :: Int -> [a] -> [[a]]
+subLists n = filter ((n ==) . length) . subsequences 
+
 
 card :: String -> Card
 card [v,s] = C (toValue v) s
@@ -66,9 +72,8 @@ rSortBy f = sortBy (flip f)
 (>>.) :: (a -> b) -> (b -> c) -> (a -> c)
 (>>.) = flip (.)
 
-hand :: String -> Hand
-hand =     cards
-       >>. rSortBy (comparing value)
+hand :: [Card] -> Hand
+hand = rSortBy (comparing value)
        >>. groupBy (same value)
        >>. rSortBy (comparing length)
        >>. rank

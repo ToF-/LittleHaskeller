@@ -59,22 +59,235 @@ ranking (H r _) = r
 \begin{lstlisting}[frame=single]
 bestRanking "9♣ A♥ K♠ 3♣ K♦ 9♦ 6♦" ~?= Just TwoPairs
 \end{lstlisting}
+\lhA Here's a simple \emph{fake} solution.
+\begin{lstlisting}[frame=single]
+bestRanking :: String -> Maybe Ranking
+bestRanking s | length (words s) < 5 = Nothing
+bestRanking s | length (words s) == 5 = Just (ranking (hand s))
+bestRanking _ = Just TwoPairs
+\end{lstlisting}
+\success Now we need to find the general implementation.
+\lhN
 There are several possible five card hands we can form with these seven cards. Do you know how much?
 \lhA Yes, ${{7}\choose{5}} = \frac{7\times6 \times 5 \times 4 \times 3}{5 \times 4 \times 3 \times 2 \times 1} = \frac{2520}{120} = 21$
 \lhN Do you know how to find them?
-\lhA Sure: use the \il!subsequences! and \il!filter! functions:
+\lhA Yes. I can use this function, \\ 
+\il!subsequences "CAT"! \\
+yields: \\
+\il!["","C","A","CA","T","CT","AT","CAT"]!
+\lhN What if we want only two letters subsequences ?
+\lhA I suppose applying \il!filter ((2==) . lenght)! on the list would do the trick.
+\lhN Then we have to find the best hand.
+\lhA Oh, that's the simplest part.
+\lhN Let's begin with that part, then.
+\lhA Allright. Suppose we have computed some sublists already:
 \begin{lstlisting}[frame=single]
-subsequences :: [a] -> [[a]] 	-- Defined in Data.List
-filter :: (a -> Bool) -> [a] -> [a] 	-- Defined in GHC.List
+bestRanking :: String -> Maybe Ranking
+bestRanking s | length (words s) < 5 = Nothing
+bestRanking s | length (words s) == 5 = Just (ranking (hand s))
+bestRanking _ = 
+    let ls = ["K♠ 3♣ K♦ 9♦ 6♦", 
+              "9♣ K♠ 3♣ K♦ 9♦", 
+              "9♣ A♥ K♠ 3♣ K♦"]
+    in Just TwoPairs
 \end{lstlisting}
-For example: 
+\success Here we don't have all the possible five card sublists, but these will suffice.
+\lhN Go on.
+\lhA Then, to find the best ranking hand from this list is easy:
 \begin{lstlisting}[frame=single]
-> filter (\s -> length s == 2) $ subsequences "CAT"
-["CA","CT","AT"]
-\end{lstlisting} % $
-\lhN Then do it. We test is still failing.
-\lhA OK:\emph{to be continued}
+bestRanking :: String -> Maybe Ranking
+bestRanking s | length (words s) < 5 = Nothing
+bestRanking s | length (words s) == 5 = Just (ranking (hand s))
+bestRanking _ = 
+    let ls = ["K♠ 3♣ K♦ 9♦ 6♦", 
+              "9♣ K♠ 3♣ K♦ 9♦", 
+              "9♣ A♥ K♠ 3♣ K♦"]
+        best  = maximum . map ranking . map hand
+    in Just (best ls)
+\end{lstlisting}
+\success And we're done for that part.
+\lhN Ok. Now for finding the sublists?
+\lhA Hmm. First we need a helper function to create 5 item sublists from a list
+\lhN Ok. What about a function such as:
+\begin{lstlisting}[frame=single]
+subLists 2 "CAT" ~?= ["CA","CT","AT"]
+\end{lstlisting}
+I introduce a variable, because I don't really want to write the case for 21 sublists.
+\lhA \error Nice idea. Here's the function:
+\begin{lstlisting}[frame=single]
+subLists :: Int -> [a] -> [[a]]
+subLists n = filter ((n ==) . length) . subsequences 
+\end{lstlisting}
+\success It's a bit more general than needed, thought.
+\lhN Ok. Now use the function to find hands.
+\lhA Not too fast. We cannot apply \il!subLists 5! on our input: \il!"9♣ A♥ K♠ 3♣ K♦ 9♦ 6♦"!.
+\lhN How can we use it then?
+\lhA We can use it on a list of cards made with this input. Thus a new helper function:
+\begin{lstlisting}[frame=single]
+fiveCardLists :: String -> [[Card]]
+fiveCardLists = (subLists 5) . cards
+\end{lstlisting}
+\lhN Ok. Now we can use this function. Right?
+\lhA No: our hand function expects a \il!String!:
+\begin{lstlisting}[frame=single]
+hand :: String -> Hand
+hand =     cards
+       >>. rSortBy (comparing value)
+       >>. groupBy (same value)
+       >>. rSortBy (comparing length)
+       >>. rank
+       >>. promoteStraight
+       >>. promoteFlush    
+\end{lstlisting}
+\lhN Then make it expect a list of \il!Card!s.
+\lhA Ok:
+\begin{lstlisting}[frame=single]
+hand :: [Card] -> Hand
+hand = rSortBy (comparing value)
+       >>. groupBy (same value)
+       >>. rSortBy (comparing length)
+       >>. rank
+       >>. promoteStraight
+       >>. promoteFlush    
+\end{lstlisting}
+\error And now we have errors.
+\lhN Yes:
+\begin{small}
+\begin{verbatim}
+Couldn't match expected type `Card' 
+  against inferred type `Char'
+      Expected type: [Card]
+      Inferred type: String
+\end{verbatim}
+\end{small}
+\lhA \error I see. We need to change the calls to \il!hand! here:
+\begin{lstlisting}[frame=single]
+bestRanking :: String -> Maybe Ranking
+bestRanking s | length (words s) < 5 = Nothing
+bestRanking s | length (words s) == 5 = Just (ranking (hand s))
+bestRanking _ = 
+    let hs = ["K♠ 3♣ K♦ 9♦ 6♦", 
+              "9♣ K♠ 3♣ K♦ 9♦", 
+              "9♣ A♥ K♠ 3♣ K♦"]
+        best  = maximum . map ranking . map hand
+    in Just (best hs)
+\end{lstlisting}
+\lhN Exact. We need to call our \il!cards! function.
+\lhA \error Let's do it.
+\begin{lstlisting}[frame=single]
+bestRanking :: String -> Maybe Ranking
+bestRanking s | length (words s) < 5 = Nothing
+bestRanking s | length (words s) == 5 = Just (ranking (hand (cards s)))
+bestRanking _ = 
+    let ls = ["K♠ 3♣ K♦ 9♦ 6♦", 
+              "9♣ K♠ 3♣ K♦ 9♦", 
+              "9♣ A♥ K♠ 3♣ K♦"]
+        best  = maximum . map ranking . map (hand . cards) 
+    in Just (best ls)
+\end{lstlisting}
+\error We still have an error, though.
+\lhN It's in the tests. I need to change this:
+\begin{lstlisting}[frame=single]
+beat h g = comparing hand  h g ~?= GT
+\end{lstlisting}
+into this:
+\begin{lstlisting}[frame=single]
+beat h g = comparing (hand . cards) h g ~?= GT
+\end{lstlisting}
+\success And everything is back to normal.
+\lhA Good.
+\lhN Now can we use our clever \il!fiveCardLists! function?
+\lhA I think so:
+\begin{lstlisting}[frame=single]
+bestRanking :: String -> Maybe Ranking
+bestRanking s | length (words s) < 5 = Nothing
+bestRanking s | length (words s) == 5 = Just (ranking (hand (cards s)))
+bestRanking s = 
+    let hs = fiveCardLists s
+        best  = maximum . map ranking . map hand 
+    in Just (best hs)
+\end{lstlisting}
+\success Yes!
+\lhN Ok. Now is a good time to clean the code, don't you think?
+\lhA You're right. First we can get rid of the intermediate pattern:
+\begin{lstlisting}[frame=single]
+bestRanking :: String -> Maybe Ranking
+bestRanking s | length (words s) < 5 = Nothing
+bestRanking s = 
+    let hs = fiveCardLists s
+        best  = maximum . map ranking . map hand 
+    in Just (best hs)
+\end{lstlisting}
+\success because the general strategy works for this case as well.
+\lhN Good. Go on.
+\lhA Next, I will expose some similarities:
+\begin{lstlisting}[frame=single]
+bestRanking :: String -> Maybe Ranking
+bestRanking s | fiveCardLists s == [] = Nothing
+bestRanking s = 
+    let hs = fiveCardLists s
+        best  = maximum . map ranking . map hand 
+    in Just (best hs)
+\end{lstlisting}
+\success so that we don't deal at the \il!String! level in this function.
+\lhN I see where you are going. 
+\lhA Then, we can simplify the whole function:
+\begin{lstlisting}[frame=single]
+bestRanking :: String -> Maybe Ranking
+bestRanking s = case (subLists 5 (cards s)) of
+                  [] -> Nothing
+                  hs -> Just (best hs)
+    where best = maximum . map ranking . map hand
+\end{lstlisting}
+\success and we get rid of the \il!fiveCardLists! helper. 
+\newpage
+\lhN Nice. Here's the test code:
+\begin{lstlisting}[frame=single]
+module Tests
+where 
+import Test.HUnit
+import PokerHand
+import Data.Ord (comparing)
+import Data.List (sort,sortBy)
 
+ud = words "A♣ 2♣ T♣ K♣ 9♣ Q♣ J♣"
+sd = words "2♣ 9♣ T♣ J♣ Q♣ K♣ A♣"
+
+main = runTestTT $ TestList 
+       [sortBy (comparing card) ud  ~?= sd
+       ,map suit (cards "A♣ A♦ A♥ A♠") ~?= ['♣','♦','♥','♠']
+       ,flush (cards "A♣ T♣ 3♣ 4♣ 2♣") ~?= True
+       ,flush (cards "A♠ T♣ 3♣ 4♣ 2♣") ~?= False
+       ,flush (cards "A♠ T♠ 3♠ 4♠ 2♠") ~?= True
+       ,"6♣ 4♦ A♣ 3♠ K♠" `beat` "8♥ J♥ 7♦ 5♥ 6♣"
+       ,"5♥ 2♦ 3♥ 4♦ 2♥" `beat` "A♥ K♥ Q♦ J♦ 9♥"
+       ,"5♥ 4♦ 3♥ 2♦ 3♣" `beat` "A♥ K♥ Q♦ J♦ 9♥"
+       ,"5♥ 4♦ 3♥ 3♣ 2♥" `beat` "7♦ 5♥ 3♦ 2♠ 2♦"
+       ,"2♦ 2♣ 3♣ 3♠ 4♥" `beat` "A♥ A♠ K♣ Q♦ J♠"  
+       ,"2♦ 2♣ 2♠ 3♥ 4♦" `beat` "A♥ A♠ K♣ K♦ J♠"
+       ,"2♦ 2♠ 2♥ 2♣ 3♦" `beat` "A♥ A♦ A♠ K♥ K♠"
+       ,"6♠ 5♦ 4♣ 3♦ 2♥" `beat` "A♣ A♥ A♦ K♣ Q♠"
+       ,"5♠ 4♦ 3♣ 2♦ A♥" `beat` "A♣ A♥ A♦ K♣ Q♠"
+       ,"6♥ 4♥ 3♥ 2♥ A♥" `beat` "A♠ K♣ Q♥ J♠ T♦"
+       ,"5♥ 4♥ 3♥ 2♥ A♥" `beat` "A♦ A♠ A♥ A♠ K♥"
+       ,"6♥ 5♥ 4♥ 3♥ 2♥" `beat` "A♦ A♠ A♥ A♠ K♥"
+       ,TestList [show HighCard ~?= "High Card",
+                  show Pair ~?= "Pair",
+                  show TwoPairs ~?=  "Two Pairs",
+                  show ThreeOfAKind ~?= "Three of a Kind",
+                  show Straight ~?= "Straight",
+                  show Flush ~?= "Flush",
+                  show FullHouse ~?= "Full House",
+                  show FourOfAKind ~?= "Four of a Kind",
+                  show StraightFlush ~?= "Straight Flush"] 
+       ,bestRanking "6♥ 6♦ 6♠ 6♣" ~?= Nothing
+       ,bestRanking "6♣ 4♦ A♣ 3♠ K♠" ~?= Just HighCard
+       ,bestRanking "6♣ 6♦ A♣ 3♠ K♠" ~?= Just Pair
+       ,bestRanking "9♣ A♥ K♠ 3♣ K♦ 9♦ 6♦" ~?= Just TwoPairs
+       ,subLists 2 "CAT" ~?= ["CA","CT","AT"]
+       ]
+    where beat h g = comparing (hand . cards) h g ~?= GT
+\end{lstlisting} % $
 
 \lhend
 

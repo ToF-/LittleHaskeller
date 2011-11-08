@@ -39,5 +39,6 @@ main = runTestTT $ TestList
        ,bestRanking "6♣ 4♦ A♣ 3♠ K♠" ~?= Just HighCard
        ,bestRanking "6♣ 6♦ A♣ 3♠ K♠" ~?= Just Pair
        ,bestRanking "9♣ A♥ K♠ 3♣ K♦ 9♦ 6♦" ~?= Just TwoPairs
+       ,subLists 2 "CAT" ~?= ["CA","CT","AT"]
        ]
-    where beat h g = comparing hand h g ~?= GT
+    where beat h g = comparing (hand . cards) h g ~?= GT
