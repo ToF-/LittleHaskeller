@@ -10,7 +10,7 @@ sd = words "2♣ 9♣ T♣ J♣ Q♣ K♣ A♣"
 
 main = runTestTT $ TestList 
        [sortBy (comparing card) ud  ~?= sd
-       ,map suit (cards "A♣ A♦ A♥ A♠") ~?= ['♣','♦','♥','♠']
+       ,map suit (cards "A♣ A♦ A♥ A♠") ~?= "♣♦♥♠"
        ,flush (cards "A♣ T♣ 3♣ 4♣ 2♣") ~?= True
        ,flush (cards "A♠ T♣ 3♣ 4♣ 2♣") ~?= False
        ,flush (cards "A♠ T♠ 3♠ 4♠ 2♠") ~?= True
@@ -26,19 +26,19 @@ main = runTestTT $ TestList
        ,"6♥ 4♥ 3♥ 2♥ A♥" `beat` "A♠ K♣ Q♥ J♠ T♦"
        ,"5♥ 4♥ 3♥ 2♥ A♥" `beat` "A♦ A♠ A♥ A♠ K♥"
        ,"6♥ 5♥ 4♥ 3♥ 2♥" `beat` "A♦ A♠ A♥ A♠ K♥"
-       ,TestList [show HighCard ~?= "High Card",
-                  show Pair ~?= "Pair",
-                  show TwoPairs ~?=  "Two Pairs",
-                  show ThreeOfAKind ~?= "Three of a Kind",
-                  show Straight ~?= "Straight",
-                  show Flush ~?= "Flush",
-                  show FullHouse ~?= "Full House",
-                  show FourOfAKind ~?= "Four of a Kind",
-                  show StraightFlush ~?= "Straight Flush"] 
-       ,bestRanking "6♥ 6♦ 6♠ 6♣" ~?= Nothing
-       ,bestRanking "6♣ 4♦ A♣ 3♠ K♠" ~?= Just HighCard
-       ,bestRanking "6♣ 6♦ A♣ 3♠ K♠" ~?= Just Pair
-       ,bestRanking "9♣ A♥ K♠ 3♣ K♦ 9♦ 6♦" ~?= Just TwoPairs
-       ,subLists 2 "CAT" ~?= ["CA","CT","AT"]
-       ]
-    where beat h g = comparing (hand . cards) h g ~?= GT
+       ,show HighCard      ~?= "High Card"
+       ,show Pair          ~?= "Pair"
+       ,show TwoPairs      ~?= "Two Pairs"
+       ,show ThreeOfAKind  ~?= "Three of a Kind"
+       ,show Straight      ~?= "Straight"
+       ,show Flush         ~?= "Flush"
+       ,show FullHouse     ~?= "Full House"
+       ,show FourOfAKind   ~?= "Four of a Kind"
+       ,show StraightFlush ~?= "Straight Flush"
+       ,maxRanking "6♥ 6♦ 6♠ 6♣"    ~?= Nothing
+       ,maxRanking "6♣ 4♦ A♣ 3♠ K♠" ~?= Just HighCard
+       ,maxRanking "6♣ 6♦ A♣ 3♠ K♠" ~?= Just Pair
+       ,maxRanking "9♣ A♥ K♠ 3♣ K♦ 9♦ 6♦" ~?= 
+                   Just TwoPairs]
+           where
+      beat h g = comparing (hand . cards) h g ~?= GT

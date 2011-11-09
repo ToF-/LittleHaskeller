@@ -72,21 +72,21 @@ against inferred type `[Card] -> Hand'
 But an empty list should do the trick.
 \lhN Let's try:
 \begin{lstlisting}[frame=single]
-       ,showRanking (HighCard [__]) ~?= "High Card"
-       ,showRanking (Pair [__]) ~?= "Pair"
+       ,showRanking (HighCard []) ~?= "High Card"
+       ,showRanking (Pair []) ~?= "Pair"
 \end{lstlisting}
 \lhA \success Yes, that's better.
 \lhN In that case, I'd rather create a single test for all ranking labels:
 \begin{lstlisting}[frame=single]
-map showRanking [HighCard [__],
-                   Pair [__],
-                   TwoPairs [__],
-                   ThreeOfAKind [__],
-                   Straight [__],
-                   Flush [__],
-                   FullHouse [__],
-                   FourOfAKind [__],
-                   StraightFlush [__]] ~?=
+map showRanking [HighCard [],
+                   Pair [],
+                   TwoPairs [],
+                   ThreeOfAKind [],
+                   Straight [],
+                   Flush [],
+                   FullHouse [],
+                   FourOfAKind [],
+                   StraightFlush []] ~?=
      ["High Card","Pair","Two Pairs","Three of a Kind",
       "Straight","Flush","Full House",
       "Four of a Kind","Straight Flush"]
@@ -242,7 +242,7 @@ rank [[a,b],[c],[d],[e]]   = H Pair     [a,b,c,d,e]
 rank [[a],[b],[c],[d],[e]] = H HighCard [a,b,c,d,e] 
 \end{lstlisting}
 \success There.
-\newpage \lhN Something is bothering me: the \il!rank! is not $DRY$.
+\newpage \lhN Something is bothering me: the \il!rank! function is not $DRY$.
 \lhA Yes. Since we list the cards along with every \il!Ranking! value, we can do that once in the main body of the function, and calculate the ranking in an auxiliary function. Thus we are separating concerns.
 \begin{lstlisting}[frame=single]
 rank :: [[Card]] -> Hand

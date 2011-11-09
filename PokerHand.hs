@@ -39,14 +39,13 @@ instance (Show) Ranking
 ranking :: Hand -> Ranking
 ranking (H r _) = r
 
-bestRanking :: String -> Maybe Ranking
-bestRanking s = case (subLists 5 (cards s)) of
+maxRanking :: String -> Maybe Ranking
+maxRanking s = case (subs (cards s)) of
                   [] -> Nothing
-                  hs -> Just (best hs)
-    where best = maximum . map ranking . map hand
-
-subLists :: Int -> [a] -> [[a]]
-subLists n = filter ((n ==) . length) . subsequences 
+                  hs -> Just (max hs)
+    where 
+      max = maximum . map ranking . map hand
+      subs = filter ((5 ==) . length) . subsequences 
 
 
 card :: String -> Card
