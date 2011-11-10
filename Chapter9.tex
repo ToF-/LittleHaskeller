@@ -8,196 +8,99 @@
 \lhQ Did we solve our problem?
 \lhA Not yet. 
 \lhN What do we need to do, then?
-\lhA Find the winner hand and mark that line in the game display.
+\lhA Mark the lines from the input with the ranking of the hand, and suffix the bast one with \il!"(winner")!.
 \lhN What test should I write?
 \lhA Write the simplest test you can think of.
-\lhN Ok. Here it is:
+\lhN What is the trivial case for a function that should mark lines?
+\lhA No hand at all.
+\lhN Ok
 \begin{lstlisting}[frame=single]
-showResults [TwoPairs] ~?= ["Two Pairs (winner)"] 
+markResults [Nothing] ~?= [""]
 \end{lstlisting}
-We take a list of \il!Ranking!s, and produce a list of displayed results. Here the list has only one line, so that line is the winner.
-\lhA \error I see. 
+If we don't have a hand, then there is no mark.
+\lhA \error I see. Here's the function:
 \begin{lstlisting}[frame=single]
-showResults :: [Ranking] -> [String]
-showResults [r] = [show r ++ " (winner)"]
+markResults :: [Maybe Ranking] -> [String]
+markResults _ = [""]
 \end{lstlisting}
-\success That's easy.
-\lhN Next, with two results:
+\success Done.
+\lhN Here's my next case. 
 \begin{lstlisting}[frame=single]
-showResults [Pair,TwoPairs] ~?= ["Pair", "Two Pairs (winner)"]  
+markResults [Nothing, Just Pair] 
+               ~?= ["","Pair (winner)"]
 \end{lstlisting}
-\lhA \failure I'll do another \emph{fake}.
+\lhA \failure Ok. I'll just add a pattern:
 \begin{lstlisting}[frame=single]
-showResults :: [Ranking] -> [String]
-showResults [r] = [show r ++ " (winner)"]
-showResults [r,s] = [show r, show s ++ " (winner)"]
+markResults :: [Maybe Ranking] -> [String]
+markResults [Nothing]   = [""]
+markResults [Nothing, Just Pair] = ["", "Pair (winner)"]
 \end{lstlisting}
-\success But we cannot continue this way.
-\lhN What refactoring do you see?
-\lhA I see a potential \il!map!
-\lhN Go on.
-\lhA I will move the \emph{fake} part in the \il!mapped! function:
+\success It's a \emph{fake}, as usual.
+\lhN Do you see a possible refactoring here?
+\lhA I see a \il!map!:
 \begin{lstlisting}[frame=single]
-showResults :: [Ranking] -> [String]
-showResults = map showAndMark
-    where showAndMark r | r == TwoPairs = show r ++ " (winner)"
-          showAndMark r = show r
+markResults :: [Maybe Ranking] -> [String]
+markResults = map mark
+    where mark Nothing = ""
+          mark (Just Pair) = "Pair (winner)"
 \end{lstlisting}
-\success But we still have duplication.
-\lhN Remove the duplication.
-\lhA Ok:
+\success Refactoring done.
+\lhN Here's a new case:
 \begin{lstlisting}[frame=single]
-showResults :: [Ranking] -> [String]
-showResults = map showAndMark
-    where showAndMark r = show r ++ if r == TwoPairs then " (winner)" else ""
+markResults [Nothing, Just Pair, Just HighCard] ~?= 
+                ["","Pair (winner)","High Card"]
 \end{lstlisting}
-\success There.
-\lhN Your function is called \il!showAndMark! so it does two things.
-\lhA That's right.
-\lhN Could you separate those two things in two functions?
-\lhA I can try.
+\error We can have several hands. The best one is the winner.
+There's \emph{non-exaustive patterns} error in our code, now.
+\lhA \error Sure. Here's a fix:
 \begin{lstlisting}[frame=single]
-showResults :: [Ranking] -> [String]
-showResults = map showAndMark
-    where showAndMark r = show r ++ mark r
-          mark r = if r == TwoPairs then " (winner)" else ""
+markResults :: [Maybe Ranking] -> [String]
+markResults = map mark
+    where mark Nothing = ""
+          mark (Just Pair) = "Pair (winner)"
+          mark (Just r) = show r
 \end{lstlisting}
-\success Not sure if it's what you asked for.
-\lhN Can you use patterns instead of \il!if then else!?
-\lhA Ok.
+\success It's still a \emph{fake}.
+\lhN How can we remove the \emph{fake}?
+\lhA By comparing each value in the list with the maximum value in the list.
 \begin{lstlisting}[frame=single]
-showResults :: [Ranking] -> [String]
-showResults = map showAndMark
-    where showAndMark r = show r ++ mark r
-          mark TwoPairs = " (winner)"
-          mark _ = ""
+markResults :: [Maybe Ranking] -> [String]
+markResults rs = map mark rs
+    where mark Nothing = ""
+          mark v@(Just r) 
+              | v == maximum rs = show r ++ " (winner)" 
+          mark (Just r) = show r 
 \end{lstlisting}
-\success There.
-\lhN Good. Now get rid of \il!showAndMark!.
-\lhA I can write it like this:
+\success It works!
+\lhN Can you remove duplication?
+\lhA Yes.
 \begin{lstlisting}[frame=single]
-showResults :: [Ranking] -> [String]
-showResults = map (\r -> show r ++ mark r)
-    where mark TwoPairs = " (winner)"
-          mark _ = ""
+markResults :: [Maybe Ranking] -> [String]
+markResults rs = map mark rs
+    where mark Nothing = ""
+          mark v@(Just r) = (show r) ++ if (v == maximum rs) then  " (winner)" else ""
 \end{lstlisting}
-\success if it's what you mean.
-\lhN Nice! Now here's another test.
+\success Done.
+\lhN Could we have pattern in lieu of the \il!if then else!?
+\lhA Yes.
 \begin{lstlisting}[frame=single]
-showResults [Pair,HighCard] ~?= 
-   ["Pair (winner)","High Card"]
+markResults :: [Maybe Ranking] -> [String]
+markResults rs = map mark rs
+    where mark Nothing = ""
+          mark (Just r) = (show r) ++ winner (Just r)
+          winner v | v == maximum rs = " (winner)"
+          winner _ = ""
 \end{lstlisting}
-\lhA \failure Ouch. Now we need to compute the real winner.
-\lhN How do you find the winner?
-\lhA \failure That's the maximum from the list of \il!Ranking!s.
+\success Done.
+\lhN And we could avoid computing the \il!maximum! at each line.
+\lhA You are right.
 \begin{lstlisting}[frame=single]
-showResults :: [Ranking] -> [String]
-showResults rs = map (\r -> show r ++ mark r) rs
-    where mark x | x == maximum rs = " (winner)"
-          mark _ = ""
+markResults :: [Maybe Ranking] -> [String]
+markResults rs = map mark rs
+    where mark Nothing = ""
+          mark (Just r) = (show r) ++ winner (Just r)
+          winner v | v == m = " (winner)"
+          winner _ = ""
+          m = maximum rs
 \end{lstlisting}
-\success It works.
-\lhN Could we avoid computing the \il!maximum! on each line?
-\lhA You're right.
-\begin{lstlisting}[frame=single]
-showResults :: [Ranking] -> [String]
-showResults rs = map (\r -> show r ++ mark r) rs
-    where mark x | x == max = " (winner)"
-          mark _ = ""
-          max = maximum rs
-\end{lstlisting}
-\success And I think we're done with showing results!
-\lhN Let's not forget that we must display the input and the result. Here's a test:
-\begin{lstlisting}[frame=single]
-showScore 
-   ["6♥ 6♦ 6♠ 6♣",
-    "6♣ 4♦ A♣ 3♠ K♠",
-    "6♣ 6♦ A♣ 3♠ K♠",
-    "9♣ A♥ K♠ 3♣ K♦ 9♦ 6♦"] ~?= 
-      ["6♥ 6♦ 6♠ 6♣",
-       "6♣ 4♦ A♣ 3♠ K♠ High Card",
-       "6♣ 6♦ A♣ 3♠ K♠ Pair",
-       "9♣ A♥ K♠ 3♣ K♦ 9♦ 6♦ Two Pairs (winner)"]
-\end{lstlisting}
-\lhA \error Wow, this is a big test.
-\lhN And a decisive one, for that matter. Can you make it pass?
-\lhA \error I think so. First, we have to compute the best \il!Ranking! for each line
-\begin{lstlisting}[frame=single]
-showScore :: [String] -> [String]
-showScore input = 
-    let rankings = map maxRanking ss
-\end{lstlisting}
-Then we have to show the correspondant results:
-\begin{lstlisting}[frame=single]
-        results  = showResults rankings
-\end{lstlisting}
-Then we have to concatenate them with the input, using \il!zipWith!:
-\begin{lstlisting}[frame=single]
-    in zipWith (++) input results
-\end{lstlisting}
-\error Ouch. It fails.
-\lhN Sure it does:
-\begin{small}
-\begin{verbatim}
-Couldn't match expected type `[Ranking]'
-against inferred type `Maybe Ranking'
-  Expected type: [[Ranking]]
-  Inferred type: [Maybe Ranking]
-In the second argument of `map', namely `rankings'
-\end{verbatim}
-\end{small}
-\lhA \error I see. We got it wrong with the type of results in the \il!showResult! function!.
-\lhN What's wrong with it?
-\lhA We can't describe the result for a line with no hand at all. So the function should be of type: \\ \il![Maybe Ranking] -> [String]! instead of \\ \il![Ranking] -> [String]!.
-\lhN That's right. Let's discard our test for now, and let me add this one:
-\begin{lstlisting}[frame=single]
-showResults [Nothing,Just Pair] ~?= ["","Pair (winner)"]
-\end{lstlisting}
-\lhA \error Of course, you have to adapt the remaining tests as well.
-\lhN You're right:
-\begin{lstlisting}[frame=single]
-showResults [Just TwoPairs] ~?= ["Two Pairs (winner)"] 
-showResults [Just Pair,Just TwoPairs] ~?= ["Pair", "Two Pairs (winner)"]
-showResults [Just Pair,Just HighCard] ~?= ["Pair (winner)","High Card"] 
-\end{lstlisting}
-\lhA \error Ok. Now we need to change the function. First we change its type:
-\begin{lstlisting}[frame=single]
-showResults :: [Maybe Ranking] -> [String]
-showResults rs = map (\r -> show r ++ mark r) rs
-    where mark x | x == max = " (winner)"
-          mark _ = ""
-          max = maximum rs
-\end{lstlisting}
-\failure I guess it can't work like that.
-\lhN No:
-\begin{small}
-\begin{verbatim}
-expected: ["", "Pair (winner)"]
- but got: ["Nothing","Pair (winner)"]
-
-expected: ["Two Pairs (winner)"]
- but got: ["Just Two Pairs (winner)"]
-
-expected: ["Pair","Two Pairs (winner)"]
- but got: ["Just Pair","Just Two Pairs (winner)"]
-
-expected: ["Pair (winner)","High Card"]
- but got: ["Just Pair (winner)","Just High Card"]
-\end{verbatim}
-\end{small}
-\lhA I see. We need a special \il!show! function:
-\begin{lstlisting}[frame=single]
-showResults :: [Maybe Ranking] -> [String]
-showResults rs = map (\r -> showR r ++ mark r) rs
-    where showR Nothing  = ""
-          showR (Just x) = show x 
-          mark x | x == max = " (winner)"
-          mark _ = ""
-          max = maximum rs
-\end{lstlisting}
-\failure Ouch. It still doesn't work.
-\lhN No. A space is missing. We get 
-\il!"6♣ 4♦ A♣ 3♠ K♠High Card"! instead of \il!"6♣ 4♦ A♣ 3♠ K♠ High Card"!
-\lhA \failure Oh. Let's fix it:
-
 \lhend

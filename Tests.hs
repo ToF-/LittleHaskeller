@@ -40,9 +40,10 @@ main = runTestTT $ TestList
        ,maxRanking "6♣ 6♦ A♣ 3♠ K♠" ~?= Just Pair
        ,maxRanking "9♣ A♥ K♠ 3♣ K♦ 9♦ 6♦" ~?= 
                    Just TwoPairs
-       ,showResults [TwoPairs] ~?= ["Two Pairs (winner)"] 
-       ,showResults [Pair,TwoPairs] ~?= ["Pair", "Two Pairs (winner)"]
-       ,showResults [Pair,HighCard] ~?= ["Pair (winner)","High Card"] 
+       ,markResults [Nothing] ~?= [""]
+       ,markResults [Nothing, Just Pair] ~?= ["","Pair (winner)"]
+       ,markResults [Nothing, Just Pair, Just HighCard] ~?= 
+                        ["","Pair (winner)","High Card"]
        ]
            where
       beat h g = comparing (hand . cards) h g ~?= GT
