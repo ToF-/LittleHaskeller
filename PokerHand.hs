@@ -39,6 +39,12 @@ instance (Show) Ranking
 ranking :: Hand -> Ranking
 ranking (H r _) = r
 
+showResults :: [Ranking] -> [String]
+showResults rs = map (\r -> show r ++ mark r) rs
+    where mark x | x == max = " (winner)"
+          mark _ = ""
+          max = maximum rs
+
 maxRanking :: String -> Maybe Ranking
 maxRanking s = case (subs (cards s)) of
                   [] -> Nothing
