@@ -103,4 +103,62 @@ markResults rs = map mark rs
           winner _ = ""
           m = maximum rs
 \end{lstlisting}
+\success And now we are done with marking results.
+\lhN What else is missing?
+\lhA Our program will have to reproduce and complete the input lines.
+\lhN Ok. Here a test:
+\begin{lstlisting}[frame=single]
+       ,scores ["6♥ 6♦ 6♠ 6♣",
+                "6♣ 4♦ A♣ 3♠ K♠",
+                "6♣ 6♦ A♣ 3♠ K♠",
+                "9♣ A♥ K♠ 3♣ K♦ 9♦ 6♦"] ~?= 
+                   ["6♥ 6♦ 6♠ 6♣",
+                    "6♣ 4♦ A♣ 3♠ K♠ High Card",
+                    "6♣ 6♦ A♣ 3♠ K♠ Pair" ,
+                    "9♣ A♥ K♠ 3♣ K♦ 9♦ 6♦ Two Pairs (winner)"]
+       ]
+\end{lstlisting}
+\lhA Wow. This is a big test!
+\lhN And an important one, for that matter. Can we make it pass?
+\lhA Let's try. First We have to find the max ranking for each hand:
+\begin{lstlisting}[frame=single]
+scores :: [String] -> [String]
+scores input = let rs = map maxRanking input
+\end{lstlisting}
+Then we have to compute the marks:
+\begin{lstlisting}[frame=single]
+                   ms = markResults rs
+\end{lstlisting}
+Then we join them with a concatenation operation:
+\begin{lstlisting}[frame=single]
+               in zipWith (++) input ms
+\end{lstlisting}
+\failure Does it work?
+\lhN No. The resulting lines lack a space between the input and the marks:
+We expect \dots\il!"6♣ 6♦ A♣ 3♠ K♠__Pair"!\dots and we get \dots\il!"6♣ 6♦ A♣ 3♠ K♠Pair"!\dots 
+\lhA \failure Then \il!(++)! is not the good operation to zip the lists with.
+\lhN Do you know of a function which add spaces between strings?
+\lhA Yes: \il!unwords!. For example, \il!unwords ["THE","CAT","IN","THE","HAT"]! gives \il!"THE CAT IN THE HAT"!.
+\lhN Then let's use it.
+\lhA Allright:
+\begin{lstlisting}[frame=single]
+scores :: [String] -> [String]
+scores input = let rs = map maxRanking input
+                   ms = markResults rs
+               in zipWith join input ms
+               where join a b = unwords [a,b]
+\end{lstlisting}
+\failure Does it work now?
+\lhN No. We have a supplementary space on the first line:
+We expect \il!"6♥ 6♦ 6♠ 6♣"! and get \il!"6♥ 6♦ 6♠ 6♣__"!.
+\lhA \failure In that case, let write a custom function.
+\begin{lstlisting}[frame=single]
+scores :: [String] -> [String]
+scores input = let rs = map maxRanking input
+                   ms = markResults rs
+               in zipWith join input ms
+               where join a "" = a
+                     join a b  = a ++ ' ':b
+\end{lstlisting}
+\success I should have thought of that in the first place!
 \lhend

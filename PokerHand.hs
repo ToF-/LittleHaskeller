@@ -39,6 +39,13 @@ instance (Show) Ranking
 ranking :: Hand -> Ranking
 ranking (H r _) = r
 
+scores :: [String] -> [String]
+scores input = let rs = map maxRanking input
+                   ms = markResults rs
+               in zipWith join input ms
+               where join a "" = a
+                     join a b  = a ++ ' ':b
+
 markResults :: [Maybe Ranking] -> [String]
 markResults rs = map mark rs
     where mark Nothing = ""

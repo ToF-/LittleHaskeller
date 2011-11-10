@@ -44,6 +44,14 @@ main = runTestTT $ TestList
        ,markResults [Nothing, Just Pair] ~?= ["","Pair (winner)"]
        ,markResults [Nothing, Just Pair, Just HighCard] ~?= 
                         ["","Pair (winner)","High Card"]
+       ,scores ["6♥ 6♦ 6♠ 6♣",
+                "6♣ 4♦ A♣ 3♠ K♠",
+                "6♣ 6♦ A♣ 3♠ K♠",
+                "9♣ A♥ K♠ 3♣ K♦ 9♦ 6♦"] ~?= 
+                   ["6♥ 6♦ 6♠ 6♣",
+                    "6♣ 4♦ A♣ 3♠ K♠ High Card",
+                    "6♣ 6♦ A♣ 3♠ K♠ Pair" ,
+                    "9♣ A♥ K♠ 3♣ K♦ 9♦ 6♦ Two Pairs (winner)"]
        ]
            where
       beat h g = comparing (hand . cards) h g ~?= GT
