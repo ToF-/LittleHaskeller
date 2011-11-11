@@ -55,6 +55,7 @@ markResults rs = map mark rs
           m = maximum rs
 
 maxRanking :: String -> Maybe Ranking
+maxRanking s | length (cards s) < 7 = Nothing
 maxRanking s = case (subs (cards s)) of
                   [] -> Nothing
                   hs -> Just (max hs)
@@ -107,7 +108,7 @@ cards :: String -> [Card]
 cards = map card . words 
 
 promoteStraight :: Hand -> Hand
-promoteStraight (H r [a,b,c,d,e]) 
+promoteStraight (H HighCard [a,b,c,d,e]) 
     | value a - value e == 4 = 
         H Straight [a,b,c,d,e]
 promoteStraight (H HighCard [a,b,c,d,e]) 

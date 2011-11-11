@@ -11,9 +11,9 @@
 \lhA Just write a failing test.
 \lhN Ok. Here we go:
 \begin{lstlisting}[frame=single]
-maxRanking "6♥ 6♦ 6♠ 6♣" ~?= Nothing
+maxRanking "6♥ 6♦ 6♠ 6♣ K♠ K♦" ~?= Nothing
 \end{lstlisting}
-In that case, the result is \il!Nothing! because there are less than five cards in the string. You know about \il!Nothing!, right ?
+In that case, the result is \il!Nothing! because there are less than seven cards in the string. You know about \il!Nothing!, right ?
 \lhA \error Yes. 
 \begin{lstlisting}[frame=single]
 maxRanking :: String -> Maybe Ranking
@@ -390,7 +390,7 @@ cards :: String -> [Card]
 cards = map card . words 
 
 promoteStraight :: Hand -> Hand
-promoteStraight (H r [a,b,c,d,e]) 
+promoteStraight (H Straight [a,b,c,d,e]) 
     | value a - value e == 4 = 
         H Straight [a,b,c,d,e]
 promoteStraight (H HighCard [a,b,c,d,e]) 
