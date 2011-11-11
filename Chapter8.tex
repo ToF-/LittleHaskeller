@@ -6,14 +6,14 @@
 \hrule
 
 \lhQ We know how to compute a hand's ranking, and print that ranking. What do we need to do now?
-\lhA We need to find the five card hand with the best ranking in an arbitrary list of cards.
+\lhA We need to find the five card hand with the best ranking in a list of cards.
 \lhN How do we do that?
 \lhA Just write a failing test.
 \lhN Ok. Here we go:
 \begin{lstlisting}[frame=single]
 maxRanking "6♥ 6♦ 6♠ 6♣ K♠ K♦" ~?= Nothing
 \end{lstlisting}
-In that case, the result is \il!Nothing! because there are less than seven cards in the string. You know about \il!Nothing!, right ?
+In that case, the result is \il!Nothing! because there are less than 7 cards in the string. You know about \il!Nothing!, right ?
 \lhA \error Yes. 
 \begin{lstlisting}[frame=single]
 maxRanking :: String -> Maybe Ranking
@@ -22,24 +22,25 @@ maxRanking _ = Nothing
 \success Your test is implying that \il!maxRanking! consumes a \il!String! and returns, \il!Maybe!, a \il!Ranking!. 
 \lhN That is correct. Here's another one:
 \begin{lstlisting}[frame=single]
-maxRanking "6♣ 4♦ A♣ 3♠ K♠" ~?= Just HighCard
+maxRanking "6♣ 4♦ A♣ 3♠ K♠ T♦ 8♣" ~?= Just HighCard
 \end{lstlisting}
+
 \lhA \failure I'll make it pass as fast as I can:
 \begin{lstlisting}[frame=single]
 maxRanking :: String -> Maybe Ranking
-maxRanking s | length (cards s) < 5 = Nothing
-maxRanking s = Just HighCard
+maxRanking s | length (cards s) < 7 = Nothing
+maxRanking _ = Just HighCard
 \end{lstlisting}
-\success We just ignore lists of less than 5 cards.
+\success We just ignore lists of less than 7 cards.
 \lhN Ok. But there is still a \emph{fake}. Here's a new test:
 \begin{lstlisting}[frame=single]
-maxRanking "6♣ 6♦ A♣ 3♠ K♠" ~?= Just Pair
+maxRanking "6♣ 6♦ A♣ 3♠ K♠ T♥ 8♦" ~?= Just Pair
 \end{lstlisting}
-\lhA Easy: we just yield the ranking
+\lhA Easy: we just return the ranking of the list of cards
 \begin{lstlisting}[frame=single]
 maxRanking :: String -> Maybe Ranking
-maxRanking s | length (cards s) < 5 = Nothing
-maxRanking s = Just (ranking (hand s))
+maxRanking s | length (cards s) < 7 = Nothing
+maxRanking s = Just $ ranking $ hand s
 \end{lstlisting}
 \error Uh oh.
 \lhN
@@ -54,21 +55,99 @@ We don't have a function \il!ranking!. We had one, but we renamed it.
 ranking :: Hand -> Ranking
 ranking (H r _) = r
 \end{lstlisting}
-\success and now the test passes.
-\lhN Ok. Here's the really complicated case:
+\error But the test still doesn't pass.
+\lhN 
+\begin{small}
+\begin{verbatim}
+Non-exhaustive patterns in function calcRank
+\end{verbatim}
+\end{small}
+We have several messages like this. 
+\lhA Of course, that function recognizes only five card patterns:
 \begin{lstlisting}[frame=single]
-maxRanking "9♣ A♥ K♠ 3♣ K♦ 9♦ 6♦" ~?= Just TwoPairs
+rank :: [[Card]] -> Hand
+rank gs = H (calcRank gs) (concat gs)  
+    where calcRank [[_,_,_,_],_]   = FourOfAKind 
+          calcRank [[_,_,_],_]     = FullHouse
+          calcRank [[_,_,_],_,_]   = ThreeOfAKind
+          calcRank [[_,_],[_,_],_] = TwoPairs
+          calcRank [[_,_],_,_,_]   = Pair    
+          calcRank [_,_,_,_,_]     = HighCard 
 \end{lstlisting}
-\lhA Here's a simple \emph{fake} solution.
+\error and I fed it with a seven card list.
+\lhN What should we do then?
+\lhA To make this test pass, let's cut the list and take only five cards. This means taking only the first 14 chars of the string:
 \begin{lstlisting}[frame=single]
 maxRanking :: String -> Maybe Ranking
-maxRanking s | length (words s) < 5 = Nothing
-maxRanking s | length (words s) == 5 = Just (ranking (hand s))
-maxRanking _ = Just TwoPairs
+maxRanking s | length (cards s) < 7 = Nothing
+maxRanking s = Just $ ranking $ hand $ take 14 s
+\end{lstlisting} % $
+\success See? It works.
+\lhN That's not very clear. Couldn't we just say:\\ \il!hand $ take 5 $ cards s! \\ instead?  
+\lhA We can always write it:
+\begin{lstlisting}[frame=single]
+maxRanking :: String -> Maybe Ranking
+maxRanking s | length (cards s) < 7 = Nothing
+maxRanking s = Just $ ranking $ hand $ take 5 $ cards s
 \end{lstlisting}
-\success Now we need to find the general implementation.
+\error But it doesn't work because \il!hand! consumes \il!String!s, not lists of \il!Card!s.
+\lhN Then make it accept a list of \il!Card!s.
+\lhA \error Ok. Heres the \il!hand! function:
+\begin{lstlisting}[frame=single]
+hand :: String -> Hand
+hand =     cards
+       >>. rSortBy (comparing value)
+       >>. groupBy (same value)
+       >>. rSortBy (comparing length)
+       >>. rank
+       >>. promoteStraight
+       >>. promoteFlush    
+\end{lstlisting}
+\error So, I change the signature, and get rid of the first call to \il!cards!, this call will be made somewhere above.:
+\begin{lstlisting}[frame=single]
+hand :: [Card] -> Hand
+hand =     rSortBy (comparing value)
+       >>. groupBy (same value)
+       >>. rSortBy (comparing length)
+       >>. rank
+       >>. promoteStraight
+       >>. promoteFlush    
+\end{lstlisting}         
+\error We still have an error.
 \lhN
-There are several possible five card hands we can form with these seven cards. Do you know how much?
+\begin{small}
+\begin{verbatim} 
+Couldn't match expected type `Card' against 
+inferred type `Char'
+\end{verbatim}
+\end{small}
+It's in the tests. I need to change this line:
+\begin{lstlisting}[frame=single]
+beat h g = comparing hand  h g ~?= GT
+\end{lstlisting}
+like this:
+\begin{lstlisting}[frame=single]
+beat h g = comparing (hand . cards) h g ~?= GT
+\end{lstlisting}
+\success And everything is back to normal.
+\lhA Good.
+\lhN We should also change the signature of our function \il!maxRanking! so that it also receive a \il![Card]!.
+I will change my test to that effect:
+\begin{lstlisting}[frame=single]
+maxRank "6♥ 6♦ 6♠ 6♣ K♠ K♦" ~?= Nothing,
+maxRank "6♣ 4♦ A♣ 3♠ K♠ T♦ 8♣" ~?= Just HighCard,
+maxRank  "6♣ 6♦ A♣ 3♠ K♠ T♥ 8♦" ~?= Just Pair]
+where beat h g = comparing (hand . cards) h g ~?= GT
+          maxRank = maxRanking . cards 
+\end{lstlisting}
+\lhA \error I now change the code of the function:
+\begin{lstlisting}[frame=single]
+maxRanking :: [Card] -> Maybe Ranking
+maxRanking cs | length cs < 7 = Nothing
+maxRanking cs = Just $ ranking $ hand $ take 5 $ cs
+\end{lstlisting}
+\success And the refactoring is done. Now we need to replace our \emph{fake} with the general implementation.
+\lhN There are several possible 5 card hands we can form with a list of 7 cards. Do you know how much?
 \lhA Yes, ${{7}\choose{5}} = \frac{7\times6 \times 5 \times 4 \times 3}{5 \times 4 \times 3 \times 2 \times 1} = \frac{2520}{120} = 21$
 \lhN Do you know how to find them?
 \lhA Yes. I can use the \il!subsequences! function. For example\\ 
@@ -82,31 +161,34 @@ gives: \\
 \lhN Let's begin with that part, then.
 \lhA Allright. Suppose we have computed some sublists already:
 \begin{lstlisting}[frame=single]
-maxRanking :: String -> Maybe Ranking
-maxRanking s | length (words s) < 5 = Nothing
-maxRanking s | length (words s) == 5 = Just (ranking (hand s))
-maxRanking _ = 
-    let ls = ["K♠ 3♣ K♦ 9♦ 6♦", 
-              "9♣ K♠ 3♣ K♦ 9♦", 
-              "9♣ A♥ K♠ 3♣ K♦"]
-    in Just TwoPairs
+maxRanking :: [Card] -> Maybe Ranking
+maxRanking cs | length cs < 7 = Nothing
+maxRanking cs = 
+    let sl = [drop 2 cs, take 5 (drop 1 cs), take 5 cs]
+    in Just $ ranking $ hand $ take 5 $ cs
 \end{lstlisting}
-\success Here we don't have all the possible five card sublists, but these will suffice.
+\success Here we don't compute all the 21 sublists, we create 3 of them. 
+\lhN Given our last test:
+\begin{lstlisting}[frame=single]
+maxRank  "6♣ 6♦ A♣ 3♠ K♠ T♥ 8♦" ~?= Just Pair
+\end{lstlisting}
+the 3 sublists would give these hands: \\\clubs{A} \spades3 \spades{K} \hearts{T} \diamonds8 \\ 
+ \diamonds6 \clubs{A} \spades3 \spades{K} \hearts{T} \\
+\clubs6 \diamonds6 \clubs{A} \spades3 \spades{K}. \\
+Only the last hand would rank as a \emph{Pair}.
+\lhA That's right.
 \lhN Go on.
 \lhA Then, to find the best ranking hand from this list is easy:
 \begin{lstlisting}[frame=single]
-maxRanking :: String -> Maybe Ranking
-maxRanking s | length (words s) < 5 = Nothing
-maxRanking s | length (words s) == 5 = Just (ranking (hand s))
-maxRanking _ = 
-    let ls = ["K♠ 3♣ K♦ 9♦ 6♦", 
-              "9♣ K♠ 3♣ K♦ 9♦", 
-              "9♣ A♥ K♠ 3♣ K♦"]
+maxRanking :: [Card] -> Maybe Ranking
+maxRanking cs | length cs < 7 = Nothing
+maxRanking cs = 
+    let sl = [drop 2 cs, take 5 (drop 1 cs), take 5 cs]
         max  = maximum . map ranking . map hand
-    in Just (max ls)
-\end{lstlisting}
+    in Just $ max sl
+\end{lstlisting} %$
 \success And we're done for that part.
-\lhN Ok. Now for finding the sublists?
+\lhN Ok. Now how do we compute the sublists?
 \lhA Hmm. First we need a helper function to create 5 item sublists from a list
 \lhN Ok. What about a function such as:
 \begin{lstlisting}[frame=single]
@@ -120,291 +202,26 @@ subLists n = filter ((n ==) . length) . subsequences
 \end{lstlisting}
 \success It's a bit more general than needed, thought.
 \lhN Ok. Now use the function to find hands.
-\lhA Not too fast. We cannot apply \il!subLists 5! on our input: \il!"9♣ A♥ K♠ 3♣ K♦ 9♦ 6♦"!.
-\lhN How can we use it then?
-\lhA We can use it on a list of cards made with this input. Thus a new helper function:
+\lhA Allright:
 \begin{lstlisting}[frame=single]
-fiveCardLists :: String -> [[Card]]
-fiveCardLists = (subLists 5) . cards
-\end{lstlisting}
-\lhN Ok. Now we can use this function. Right?
-\lhA No: our hand function expects a \il!String!:
-\begin{lstlisting}[frame=single]
-hand :: String -> Hand
-hand =     cards
-       >>. rSortBy (comparing value)
-       >>. groupBy (same value)
-       >>. rSortBy (comparing length)
-       >>. rank
-       >>. promoteStraight
-       >>. promoteFlush    
-\end{lstlisting}
-\lhN Then make it expect a list of \il!Card!s.
-\lhA Ok:
-\begin{lstlisting}[frame=single]
-hand :: [Card] -> Hand
-hand = rSortBy (comparing value)
-       >>. groupBy (same value)
-       >>. rSortBy (comparing length)
-       >>. rank
-       >>. promoteStraight
-       >>. promoteFlush    
-\end{lstlisting}
-\error And now we have errors.
-\lhN Yes:
-\begin{small}
-\begin{verbatim}
-Couldn't match expected type `Card' 
-  against inferred type `Char'
-      Expected type: [Card]
-      Inferred type: String
-\end{verbatim}
-\end{small}
-\lhA \error I see. We need to change the calls to \il!hand! here:
-\begin{lstlisting}[frame=single]
-maxRanking :: String -> Maybe Ranking
-maxRanking s | length (words s) < 5 = Nothing
-maxRanking s | length (words s) == 5 = Just (ranking (hand s))
-maxRanking _ = 
-    let hs = ["K♠ 3♣ K♦ 9♦ 6♦", 
-              "9♣ K♠ 3♣ K♦ 9♦", 
-              "9♣ A♥ K♠ 3♣ K♦"]
+maxRanking :: [Card] -> Maybe Ranking
+maxRanking cs | length cs < 7 = Nothing
+maxRanking cs = 
+    let sl = subLists 5 cs
         max  = maximum . map ranking . map hand
-    in Just (max hs)
-\end{lstlisting}
-\lhN Exact. We need to call our \il!cards! function.
-\lhA \error Let's do it.
-\begin{lstlisting}[frame=single]
-maxRanking :: String -> Maybe Ranking
-maxRanking s | length (words s) < 5 = Nothing
-maxRanking s | length (words s) == 5 = Just (ranking (hand (cards s)))
-maxRanking _ = 
-    let ls = ["K♠ 3♣ K♦ 9♦ 6♦", 
-              "9♣ K♠ 3♣ K♦ 9♦", 
-              "9♣ A♥ K♠ 3♣ K♦"]
-        max  = maximum . map ranking . map (hand . cards) 
-    in Just (max ls)
-\end{lstlisting}
-\error We still have an error, though.
-\lhN It's in the tests. I need to change this:
-\begin{lstlisting}[frame=single]
-beat h g = comparing hand  h g ~?= GT
-\end{lstlisting}
-into this:
-\begin{lstlisting}[frame=single]
-beat h g = comparing (hand . cards) h g ~?= GT
-\end{lstlisting}
-\success And everything is back to normal.
-\lhA Good.
-\lhN Now can we use our clever \il!fiveCardLists! function?
-\lhA I think so:
-\begin{lstlisting}[frame=single]
-maxRanking :: String -> Maybe Ranking
-maxRanking s | length (words s) < 5 = Nothing
-maxRanking s | length (words s) == 5 = Just (ranking (hand (cards s)))
-maxRanking s = 
-    let hs = fiveCardLists s
-        max  = maximum . map ranking . map hand 
-    in Just (max hs)
-\end{lstlisting}
-\success Yes!
-\lhN Ok. Now is a good time to clean the code, don't you think?
-\lhA You're right. First we can get rid of the intermediate pattern:
-\begin{lstlisting}[frame=single]
-maxRanking :: String -> Maybe Ranking
-maxRanking s | length (words s) < 5 = Nothing
-maxRanking s = 
-    let hs = fiveCardLists s
-        max  = maximum . map ranking . map hand 
-    in Just (max hs)
-\end{lstlisting}
-\success because the general strategy works for this case as well.
-\lhN Good. Go on.
-\lhA Next, I will expose some similarities:
-\begin{lstlisting}[frame=single]
-maxRanking :: String -> Maybe Ranking
-maxRanking s | fiveCardLists s == [] = Nothing
-maxRanking s = 
-    let hs = fiveCardLists s
-        max  = maximum . map ranking . map hand 
-    in Just (max hs)
-\end{lstlisting}
-\success so that we don't deal at the \il!String! level in this function.
-\lhN I see where you are going. 
-\lhA Then, we can simplify the whole function:
-\begin{lstlisting}[frame=single]
-maxRanking :: String -> Maybe Ranking
-maxRanking s = case (subLists 5 (cards s)) of
-                  [] -> Nothing
-                  hs -> Just (max hs)
-    where max = maximum . map ranking . map hand
-\end{lstlisting}
-\success and we get rid of the \il!fiveCardLists! helper. 
-
-\lhN Nice. Here are the test:
-\begin{lstlisting}[frame=single]
-module Tests
-where 
-import Test.HUnit
-import PokerHand
-import Data.Ord (comparing)
-import Data.List (sort,sortBy)
-
-ud = words "A♣ 2♣ T♣ K♣ 9♣ Q♣ J♣"
-sd = words "2♣ 9♣ T♣ J♣ Q♣ K♣ A♣"
-
-main = runTestTT $ TestList 
-       [sortBy (comparing card) ud  ~?= sd
-       ,map suit (cards "A♣ A♦ A♥ A♠") ~?= "♣♦♥♠"
-       ,flush (cards "A♣ T♣ 3♣ 4♣ 2♣") ~?= True
-       ,flush (cards "A♠ T♣ 3♣ 4♣ 2♣") ~?= False
-       ,flush (cards "A♠ T♠ 3♠ 4♠ 2♠") ~?= True
-       ,"6♣ 4♦ A♣ 3♠ K♠" `beat` "8♥ J♥ 7♦ 5♥ 6♣"
-       ,"5♥ 2♦ 3♥ 4♦ 2♥" `beat` "A♥ K♥ Q♦ J♦ 9♥"
-       ,"5♥ 4♦ 3♥ 2♦ 3♣" `beat` "A♥ K♥ Q♦ J♦ 9♥"
-       ,"5♥ 4♦ 3♥ 3♣ 2♥" `beat` "7♦ 5♥ 3♦ 2♠ 2♦"
-       ,"2♦ 2♣ 3♣ 3♠ 4♥" `beat` "A♥ A♠ K♣ Q♦ J♠"  
-       ,"2♦ 2♣ 2♠ 3♥ 4♦" `beat` "A♥ A♠ K♣ K♦ J♠"
-       ,"2♦ 2♠ 2♥ 2♣ 3♦" `beat` "A♥ A♦ A♠ K♥ K♠"
-       ,"6♠ 5♦ 4♣ 3♦ 2♥" `beat` "A♣ A♥ A♦ K♣ Q♠"
-       ,"5♠ 4♦ 3♣ 2♦ A♥" `beat` "A♣ A♥ A♦ K♣ Q♠"
-       ,"6♥ 4♥ 3♥ 2♥ A♥" `beat` "A♠ K♣ Q♥ J♠ T♦"
-       ,"5♥ 4♥ 3♥ 2♥ A♥" `beat` "A♦ A♠ A♥ A♠ K♥"
-       ,"6♥ 5♥ 4♥ 3♥ 2♥" `beat` "A♦ A♠ A♥ A♠ K♥"
-       ,show HighCard      ~?= "High Card"
-       ,show Pair          ~?= "Pair"
-       ,show TwoPairs      ~?= "Two Pairs"
-       ,show ThreeOfAKind  ~?= "Three of a Kind"
-       ,show Straight      ~?= "Straight"
-       ,show Flush         ~?= "Flush"
-       ,show FullHouse     ~?= "Full House"
-       ,show FourOfAKind   ~?= "Four of a Kind"
-       ,show StraightFlush ~?= "Straight Flush"
-       ,maxRanking "6♥ 6♦ 6♠ 6♣"    ~?= Nothing
-       ,maxRanking "6♣ 4♦ A♣ 3♠ K♠" ~?= Just HighCard
-       ,maxRanking "6♣ 6♦ A♣ 3♠ K♠" ~?= Just Pair
-       ,maxRanking "9♣ A♥ K♠ 3♣ K♦ 9♦ 6♦" ~?= 
-                   Just TwoPairs]
-    where
-      beat h g = comparing (hand . cards) h g ~?= GT
+    in Just $ max sl
 \end{lstlisting} %$
-As you can see, I refactored the code for layout. And removed the test about \il!subLists!.
-\lhA Then I can make this function a private helper of the function to \il!maxRanking!.
-Here is the tested code:
+\success It works!
+\lhN Yes. Can you clean up the code? I will delete the test about \il!subLists!, as I think this function is just a helper. 
+\lhA Right:
 \begin{lstlisting}[frame=single]
-module PokerHand
-where
-import Char
-import Data.Ord
-import Data.List
-
-data Card = C { value :: Value, suit :: Suit } 
-            deriving (Ord,Eq)
-type Value = Int
-type Suit = Char
-
-data Hand = H Ranking [Card]
-            deriving (Ord,Eq)
-
-data Ranking = HighCard
-             | Pair
-             | TwoPairs
-             | ThreeOfAKind
-             | Straight
-             | Flush
-             | FullHouse
-             | FourOfAKind
-             | StraightFlush
-            deriving (Ord,Eq)
-
-instance (Show) Ranking
-    where
-      show HighCard      = "High Card"
-      show Pair          = "Pair" 
-      show TwoPairs      = "Two Pairs" 
-      show ThreeOfAKind  = "Three of a Kind" 
-      show Straight      = "Straight" 
-      show Flush         = "Flush" 
-      show FullHouse     = "Full House" 
-      show FourOfAKind   = "Four of a Kind"
-      show StraightFlush = "Straight Flush"
-
-
-ranking :: Hand -> Ranking
-ranking (H r _) = r
-\end{lstlisting}
-\dots
-\lhN
-\lhA
-\begin{lstlisting}[frame=single]
-maxRanking :: String -> Maybe Ranking
-maxRanking s = case (subs (cards s)) of
-                  [] -> Nothing
-                  hs -> Just (max hs)
+maxRanking :: [Card] -> Maybe Ranking
+maxRanking cs | length cs < 7 = Nothing
+maxRanking cs = Just $ max (subLists cs)
     where 
-      max = maximum . map ranking . map hand
-      subs = filter ((5 ==) . length) . subsequences 
+      max = maximum . map (ranking . hand)
+      subLists = filter ((5==).length) . subsequences
+\end{lstlisting} %$
+\success And we're done.
 
-
-card :: String -> Card
-card [v,s] = C (toValue v) s
-    where 
-      toValue 'A' = 14
-      toValue 'K' = 13
-      toValue 'Q' = 12
-      toValue 'J' = 11
-      toValue 'T' = 10
-      toValue  c  = ((ord c) - (ord '0'))
-
-same :: (Eq a) => (t -> a) -> t -> t -> Bool
-same f a b = f a == f b
-
-flush :: [Card] -> Bool
-flush (c:cs) = all (same suit c) cs
-
-
-rSortBy :: (Ord a) => (a -> a -> Ordering) -> [a] -> [a]
-rSortBy f = sortBy (flip f)
-
-(>>.) :: (a -> b) -> (b -> c) -> (a -> c)
-(>>.) = flip (.)
-
-hand :: [Card] -> Hand
-hand = rSortBy (comparing value)
-       >>. groupBy (same value)
-       >>. rSortBy (comparing length)
-       >>. rank
-       >>. promoteStraight
-       >>. promoteFlush    
-
-rank :: [[Card]] -> Hand
-rank gs = H (calcRank gs) (concat gs)  
-    where calcRank [[_,_,_,_],_]   = FourOfAKind 
-          calcRank [[_,_,_],_]     = FullHouse
-          calcRank [[_,_,_],_,_]   = ThreeOfAKind
-          calcRank [[_,_],[_,_],_] = TwoPairs
-          calcRank [[_,_],_,_,_]   = Pair    
-          calcRank [_,_,_,_,_]     = HighCard 
-
-cards :: String -> [Card]
-cards = map card . words 
-
-promoteStraight :: Hand -> Hand
-promoteStraight (H Straight [a,b,c,d,e]) 
-    | value a - value e == 4 = 
-        H Straight [a,b,c,d,e]
-promoteStraight (H HighCard [a,b,c,d,e]) 
-    | value a == 14 && value b == 5 = 
-        H Straight [b,c,d,e,a]
-promoteStraight h = h
-
-
-promoteFlush :: Hand -> Hand
-promoteFlush (H HighCard cs) 
-    | flush cs = H Flush cs
-promoteFlush (H Straight cs) 
-    | flush cs = H StraightFlush cs
-promoteFlush h = h
-\end{lstlisting}
-\lhend
-
+\lhend 

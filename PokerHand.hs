@@ -12,6 +12,9 @@ type Suit = Char
 data Hand = H Ranking [Card]
             deriving (Ord,Eq)
 
+ranking :: Hand -> Ranking
+ranking (H r _) = r
+
 data Ranking = HighCard
              | Pair
              | TwoPairs
@@ -34,35 +37,6 @@ instance (Show) Ranking
       show FullHouse     = "Full House" 
       show FourOfAKind   = "Four of a Kind"
       show StraightFlush = "Straight Flush"
-
-
-ranking :: Hand -> Ranking
-ranking (H r _) = r
-
-scores :: [String] -> [String]
-scores input = let rs = map maxRanking input
-                   ms = markResults rs
-               in zipWith join input ms
-               where join a "" = a
-                     join a b  = a ++ ' ':b
-
-markResults :: [Maybe Ranking] -> [String]
-markResults rs = map mark rs
-    where mark Nothing = ""
-          mark (Just r) = (show r) ++ winner (Just r)
-          winner v | v == m = " (winner)"
-          winner _ = ""
-          m = maximum rs
-
-maxRanking :: String -> Maybe Ranking
-maxRanking s | length (cards s) < 7 = Nothing
-maxRanking s = case (subs (cards s)) of
-                  [] -> Nothing
-                  hs -> Just (max hs)
-    where 
-      max = maximum . map ranking . map hand
-      subs = filter ((5 ==) . length) . subsequences 
-
 
 card :: String -> Card
 card [v,s] = C (toValue v) s
@@ -87,8 +61,30 @@ rSortBy f = sortBy (flip f)
 (>>.) :: (a -> b) -> (b -> c) -> (a -> c)
 (>>.) = flip (.)
 
+scores :: [String] -> [String]
+scores input = let rs = map (maxRanking . cards) input
+                   ms = markResults rs
+               in zipWith join input ms
+                   where join a "" = a
+                         join a b  = a ++ ' ':b
+
+markResults :: [Maybe Ranking] -> [String]
+markResults rs = map mark rs
+    where mark Nothing = ""
+          mark (Just r) = (show r) ++ winner (Just r)
+          winner v | v == m = " (winner)"
+          winner _ = ""
+          m = maximum rs
+
+maxRanking :: [Card] -> Maybe Ranking
+maxRanking cs | length cs < 7 = Nothing
+maxRanking cs = Just $ max (subLists cs)
+    where 
+      max = maximum . map (ranking . hand)
+      subLists = filter ((5==).length) . subsequences
+
 hand :: [Card] -> Hand
-hand = rSortBy (comparing value)
+hand =     rSortBy (comparing value)
        >>. groupBy (same value)
        >>. rSortBy (comparing length)
        >>. rank
@@ -108,7 +104,7 @@ cards :: String -> [Card]
 cards = map card . words 
 
 promoteStraight :: Hand -> Hand
-promoteStraight (H HighCard [a,b,c,d,e]) 
+promoteStraight (H r [a,b,c,d,e]) 
     | value a - value e == 4 = 
         H Straight [a,b,c,d,e]
 promoteStraight (H HighCard [a,b,c,d,e]) 
