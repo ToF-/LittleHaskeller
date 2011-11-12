@@ -20,9 +20,10 @@
 \newcommand{\monospades}{$\spadesuit$}
 
 %% little haskeller commands
+\newcounter{lhparagraph}
 \newcommand{\il}{\lstinline}
-\newcommand{\lhQ}{\begin{multicols}{2}}
-\newcommand{\lhA}{\hspace*{\fill}\vspace*{\fill}\columnbreak\newline}
+\newcommand{\lhQ}{\stepcounter{lhparagraph}\begin{multicols}{2}}
+\newcommand{\lhA}{\hspace*{\fill}\vspace*{\fill}\columnbreak\newline{\tiny\arabic{lhparagraph}} }
 \newcommand{\lhend}{\end{multicols}}
 \newcommand{\lhN}{\lhend\hrule\lhQ}
 \newenvironment{qr}[1]{%
