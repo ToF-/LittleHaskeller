@@ -2,4 +2,9 @@ module Main
 where
 import PokerHand
 
-main = putStrLn . unlines . scores . lines =<< getContents
+main = getContents 
+       >>= lines
+       >>. scores
+       >>. unlines
+       >>. putStrLn
+

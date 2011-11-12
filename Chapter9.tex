@@ -8,7 +8,7 @@
 \lhQ Did we solve our problem?
 \lhA Not yet. 
 \lhN What do we need to do, then?
-\lhA Mark the lines from the input with the ranking of the hand, and suffix the bast one with \il!"(winner")!.
+\lhA Mark the lines from the input with the ranking of the hand, and suffix the best one with \il!"(winner")!.
 \lhN What test should I write?
 \lhA Write the simplest test you can think of.
 \lhN What is the trivial case for a function that should mark lines?
@@ -157,4 +157,50 @@ scores input = let rs = map (maxRanking . cards) input
                          join a b  = a ++ ' ':b
 \end{lstlisting}
 \success And we're done!
+\lhN Are we? Here's the final test case. 
+\begin{alltt}
+\clubs{K} \spades{9} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6}
+\clubs{9} \hearts{A} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6}
+\clubs{A} \clubs{Q} \spades{K} \diamonds{K} \diamonds{9} \clubs{3}
+\hearts{9} \spades{5}
+\diamonds{4} \diamonds{2} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6}
+\spades{7} \spades{T} \spades{K} \diamonds{K} \diamonds{9}
+\end{alltt}
+I put it in a file named \emph{game.txt}.
+ 
+\lhA Ok. We just have to create a main program which would process this file and compute the scores.
+
+\begin{lstlisting}[frame=single] 
+module Main
+where
+import PokerHand
+\end{lstlisting}
+Let's call this program \emph{Scores.hs}.
+\lhN Ok. How does the program work?
+\lhA Very simple. First we get the text from the input. We have to separate this text into lines, calculate the scores, assemble the result back into a text, which we display on the output: 
+\begin{lstlisting}[frame=single]
+main = getContents 
+       >>= lines
+       >>. scores
+       >>. unlines
+       >>. putStrLn
+\end{lstlisting}
+\lhN How do we try it?
+\lhA just type:
+\begin{alltt}
+runghc Scores <game.txt
+\end{alltt}
+\lhN Here's the output:
+\begin{alltt}
+\clubs{K} \spades{9} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6} Full House (winner)
+\clubs{9} \hearts{A} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6} Two Pair
+\clubs{A} \clubs{Q} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} 
+\hearts{9} \spades{5} 
+\diamonds{4} \diamonds{2} \spades{K} \diamonds{K} \diamonds{9} \clubs{3} \diamonds{6} Flush
+\spades{7} \spades{T} \spades{K} \diamonds{K} \diamonds{9} 
+\end{alltt}
+So, I guess it works.
+\lhA \success \success \success It works! Hurray!
+\lhN Let's ship our program to the customer
+\lhA And have a fantastic dinner!
 \lhend
