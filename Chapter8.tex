@@ -83,8 +83,8 @@ maxRanking s | length (cards s) < 7 = Nothing
 maxRanking s = Just $ ranking $ hand $ take 14 s
 \end{lstlisting} % $
 \success See? It works.
-\lhN That's not very clear. Couldn't we just say:\\ \il!hand $ take 5 $ cards s! \\ instead?  
-\lhA We can always write it:
+\lhN That's not very clear. Couldn't we just say that we want to take the 5 first cards, instead of the 14 first chars?
+\lhA We can always use \il!cards! on the string and write it like that:
 \begin{lstlisting}[frame=single]
 maxRanking :: String -> Maybe Ranking
 maxRanking s | length (cards s) < 7 = Nothing
@@ -167,16 +167,17 @@ maxRanking cs =
     let sl = [drop 2 cs, take 5 (drop 1 cs), take 5 cs]
     in Just $ ranking $ hand $ take 5 $ cs
 \end{lstlisting}
-\success Here we don't compute all the 21 sublists, we create 3 of them. 
+\success Here we don't compute all the 21 sublists, we create only 3 of them. 
 \lhN Given our last test:
 \begin{lstlisting}[frame=single]
 maxRank  "6♣ 6♦ A♣ 3♠ K♠ T♥ 8♦" ~?= Just Pair
 \end{lstlisting}
-the 3 sublists would give these hands: \\\clubs{A} \spades3 \spades{K} \hearts{T} \diamonds8 \\ 
+What would be the value of these 3 sublists?
+\lhA That would be:\\
+\clubs{A} \spades3 \spades{K} \hearts{T} \diamonds8 \\ 
  \diamonds6 \clubs{A} \spades3 \spades{K} \hearts{T} \\
 \clubs6 \diamonds6 \clubs{A} \spades3 \spades{K}. \\
 Only the last hand would rank as a \emph{Pair}.
-\lhA That's right.
 \lhN Go on.
 \lhA Then, to find the best ranking hand from this list is easy:
 \begin{lstlisting}[frame=single]
@@ -200,7 +201,7 @@ I introduce a variable, because I don't really want to write the case for 21 sub
 subLists :: Int -> [a] -> [[a]]
 subLists n = filter ((n ==) . length) . subsequences 
 \end{lstlisting}
-\success It's a bit more general than needed, thought.
+\success It's a bit more general than needed, though.
 \lhN Ok. Now use the function to find hands.
 \lhA Allright:
 \begin{lstlisting}[frame=single]

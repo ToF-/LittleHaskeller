@@ -68,7 +68,7 @@ Couldn't match expected type `Hand'
 against inferred type `[Card] -> Hand'
 \end{verbatim}
 \end{small}
-\lhA \error No, that's not right. You can't use these data constructor without a list of \il!Card!s.
+\lhA \error No, that's not right. You can't use these data constructors without a list of \il!Card!s.
 But an empty list should do the trick.
 \lhN Let's try:
 \begin{lstlisting}[frame=single]
@@ -104,7 +104,7 @@ showRanking (FullHouse _)     = "Full House"
 showRanking (FourOfAKind _)   = "Four of a Kind"
 showRanking (StraightFlush _) = "Straight Flush"
 \end{lstlisting}
-\success And your big test is passing. But this is not quite satifying.
+\success And your big test is passing. But this is not quite satisfying.
 \lhN Agreed. The test is not as expressive as it should be. What we want to express is that, for example: \\
 \emph{the keyword \il!FourOfAKind! should be displayed as \il!"Four of a Kind"!.}
 \lhA Then you can change the tests.
@@ -126,7 +126,7 @@ showRanking (StraightFlush _) = "Straight Flush"
 No instance for (Show ([Card] -> Hand))
 \end{verbatim}
 \end{small}
-\lhA \error Data constructor like \il!HigCard! or \il!Pair! are really functions. And we cannot make a function \il!Show!able.
+\lhA \error Data constructor like \il!HighCard! or \il!Pair! are really functions. And we cannot make a function \il!Show!able.
 \lhN What should we do then?
 \lhA Create a data type for these values:
 \begin{lstlisting}[frame=single]
@@ -166,7 +166,7 @@ ranking [[a,b,c],[d],[e]]= H ThreeOfAKind [a,b,c,d,e]
 ranking [[a,b],[c,d],[e]]= H TwoPairs [a,b,c,d,e]
 ranking [[a,b],[c],[d],[e]]  = H Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]]= H HighCard [a,b,c,d,e] 
-\end{lstlisting}
+\end{lstlisting} \newpage
 \lhN We have the same error in functions \il!promoteStraight! and \il!promoteFlush!.
 \lhA \error We'll apply the same fix:
 \begin{lstlisting}[frame=single]
@@ -209,7 +209,7 @@ instance (Show) Ranking
 \end{lstlisting}
 \success And we're done.
 \lhN Now that the tests are passing, we should refactor the code.
-\lhA You are right. Let's begin with the \il!ranking! function:
+\lhA You are right. Let's begin with the \il!ranking! function. Here it is:
 \begin{lstlisting}[frame=single]
 ranking :: [[Card]] -> Hand
 ranking [[a,b,c,d],[e]] = H FourOfAKind [a,b,c,d,e]
@@ -220,9 +220,9 @@ ranking [[a,b],[c],[d],[e]]   = H Pair     [a,b,c,d,e]
 ranking [[a],[b],[c],[d],[e]] = H HighCard [a,b,c,d,e] 
 \end{lstlisting}
 \lhN We should change its name, because a function called \il!ranking! should be about extracting the \il!Ranking! value from a \il!Hand!. 
-\lhA I agree.
+\lhA I agree. \newpage
 \lhN What would be a good name for a function that ranks a list of cards ?
-\lhA That would be \il!rank!:
+\lhA That would be \il!rank!:.
 \begin{lstlisting}[frame=single]
 hand :: String -> Hand
 hand =     cards
@@ -242,7 +242,7 @@ rank [[a,b],[c],[d],[e]]   = H Pair     [a,b,c,d,e]
 rank [[a],[b],[c],[d],[e]] = H HighCard [a,b,c,d,e] 
 \end{lstlisting}
 \success There.
-\newpage \lhN Something is bothering me: the \il!rank! function is not $DRY$.
+\lhN Something is bothering me: the \il!rank! function is not $DRY$.
 \lhA Yes. Since we list the cards along with every \il!Ranking! value, we can do that once in the main body of the function, and calculate the ranking in an auxiliary function. Thus we are separating concerns.
 \begin{lstlisting}[frame=single]
 rank :: [[Card]] -> Hand
@@ -255,7 +255,7 @@ rank gs = H (calcRank gs) (concat gs)
           calcRank [_,_,_,_,_]     = HighCard 
 \end{lstlisting}
 \success As you probably know, \il!concat! concatenates several lists into one.
-
+\newpage
 \lhN Ok. Here's the test code:
 \begin{lstlisting}[frame=single]
 module Tests
@@ -336,10 +336,6 @@ instance (Show) Ranking
       show FullHouse     = "Full House" 
       show FourOfAKind   = "Four of a Kind"
       show StraightFlush = "Straight Flush"
-\end{lstlisting}
-\lhN \lhA
-\begin{lstlisting}[frame=single]
-
 
 card :: String -> Card
 card [v,s] = C (toValue v) s
@@ -359,6 +355,10 @@ flush (c:cs) = all (same suit c) cs
 
 rSortBy :: (Ord a) => (a -> a -> Ordering) -> [a] -> [a]
 rSortBy f = sortBy (flip f)
+\end{lstlisting}
+\lhN \lhA
+\begin{lstlisting}[frame=single]
+
 
 (>>.) :: (a -> b) -> (b -> c) -> (a -> c)
 (>>.) = flip (.)
