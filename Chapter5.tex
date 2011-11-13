@@ -170,7 +170,7 @@ rSortBy f = sortBy (flip f)
 \success For \il!Card!s, \il!compare! and \il!comparing value! are equivalent, so we can use the latter form for symmetry.
 \lhN The function we use for ranking is quite powerful. How easily do you think it could handle new rankings?
 \lhA Write a new test, and we will see.
-\lhN Allright. Here's a test saying that the lowest \emph{Tow Pairs} can beat the highest possible \emph{Pair}.
+\lhN Allright. Here's a test saying that the lowest \emph{Two Pairs} can beat the highest possible \emph{Pair}.
 \begin{lstlisting}[frame=single]
        ,"2♦ 2♣ 3♣ 3♠ 4♥" `beat` "A♥ A♠ K♣ Q♦ J♠"]
 \end{lstlisting}
@@ -181,7 +181,7 @@ non-exhaustive pattern in function ranking
 \end{verbatim}
 \end{small}
 Can you make it pass?
-\lhA \error Let's begin by adding the pattern for \emph{Three of a Kind}:
+\lhA \error Let's begin by adding the pattern for \emph{Two Pairs}:
 \begin{lstlisting}[frame=single]
 ranking :: [[Card]] -> Hand
 ranking [[a,b],[c,d],[e]]     = TwoPairs [a,b,c,d,e]
