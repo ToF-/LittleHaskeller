@@ -133,7 +133,7 @@ flush :: [Card] -> Bool
 flush (c:cs) = all (\x -> suit x == suit c) cs
 \end{lstlisting}
 \success Of course, we're assuming that the \il!flush! function will always consume non-empty lists. 
-\lhN Ok. This are the tests so far:
+\lhN Ok. These are the tests so far:
 \begin{lstlisting}[frame=single]
 module Tests
 where 
