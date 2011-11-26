@@ -147,7 +147,7 @@ maxRanking cs | length cs < 7 = Nothing
 maxRanking cs = Just $ ranking $ hand $ take 5 $ cs
 \end{lstlisting}
 \success And the refactoring is done. Now we need to replace our \emph{fake} with the general implementation.
-\lhN There are several possible 5 card hands we can form with a list of 7 cards. Do you know how much?
+\lhN There are several possible 5 card hands we can form with a list of 7 cards. Do you know how many?
 \lhA Yes, ${{7}\choose{5}} = \frac{7\times6 \times 5 \times 4 \times 3}{5 \times 4 \times 3 \times 2 \times 1} = \frac{2520}{120} = 21$
 \lhN Do you know how to find them?
 \lhA Yes. I can use the \il!subsequences! function. For example\\ 
