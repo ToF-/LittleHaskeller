@@ -2,5 +2,15 @@ This little book will show you an example of using the Test Driven Development t
 
 Elements of Haskell covered in the books are: comparison functions, lists functions (grouping, sorting) and creating new data types. 
 
-I borrowed the style of the excellent** book The Little Schemer by Daniel P. Friedman and Matthias Felleisen which features two protagonist going through a very simple question/response loop, building a full programming lesson 
-through code examples and nothing else.  
+I borrowed the style of the excellent** book The Little Schemer by Daniel P. Friedman and Matthias Felleisen which features two protagonists going through a very simple question/response loop, building a full programming lesson through code examples only. I made two adaptations to this highly pedagogic style: most of the questions include a new unit test, and most of the response are refactorings. 
+
+Some advice might help you to enjoy the text:
+The colored square indicates the status of the unit test "bar". Green means that all the test pass. Orange means that the test cannot run because the program syntax is currently incorrect, Red means that at least one the unit tests fails. 
+
+Be sure to understand a step before continuing reading to the next step.
+
+Use GHCI, the Haskell interactive environment, when you want to know more about the functions that are used through the text.
+
+Each chapter presents the source code written so far. I apologize in advance for the remaining typos and would be grateful for any kind of feedback about this little book.
+
+ 
