@@ -1,0 +1,6 @@
+This little book will show you an example of using the Test Driven Development technique in the Haskell programming language. Test Driven Development consist in building a program using the three-steps process of writing a test that fails, making it pass, and then refactoring both code and tests. Following the TDD process allows to create programs through emergent design. The book shows a path towards a solution to the "PokerHand" kata (http://codingdojo.org/cgi-bin/wiki.pl?KataPokerHands). 
+
+Elements of Haskell covered in the books are: comparison functions, lists functions (grouping, sorting) and creating new data types. 
+
+I borrowed the style of the excellent** book The Little Schemer by Daniel P. Friedman and Matthias Felleisen which features two protagonist going through a very simple question/response loop, building a full programming lesson 
+through code examples and nothing else.  
